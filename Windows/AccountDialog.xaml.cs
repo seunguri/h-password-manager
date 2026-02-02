@@ -342,9 +342,10 @@ namespace PasswordProtector.Windows
             ResetDatePicker.IsDropDownOpen = true;
         }
 
-        private void ResetDateTextBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void ResetDateTextBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             ResetDatePicker.IsDropDownOpen = true;
+            e.Handled = true;
         }
 
         private void ResetDatePicker_SelectedDateChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)

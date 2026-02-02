@@ -270,8 +270,8 @@
                     <TextBox x:Name="ResetDateTextBox" Grid.Column="0"
                              Background="#2D2D30" Foreground="#DCDCDC" 
                              BorderBrush="#3F3F46" BorderThickness="1"
-                             Padding="10,8" FontSize="14" IsReadOnly="True"
-                             MouseLeftButtonDown="ResetDateTextBox_MouseLeftButtonDown">
+                             Padding="10,8" FontSize="14" IsReadOnly="True" Cursor="Hand"
+                             PreviewMouseLeftButtonDown="ResetDateTextBox_PreviewMouseLeftButtonDown">
                         <TextBox.Style>
                             <Style TargetType="TextBox">
                                 <Setter Property="Template">
@@ -292,7 +292,8 @@
                     <Button Grid.Column="1" Content="📅" Click="SelectDateButton_Click"
                             Background="Transparent" Foreground="#DCDCDC" BorderThickness="0"
                             FontSize="16" Padding="8" Margin="8,0,0,0" Cursor="Hand"/>
-                    <DatePicker x:Name="ResetDatePicker" Visibility="Collapsed" 
+                    <DatePicker x:Name="ResetDatePicker" Grid.Column="0" Grid.ColumnSpan="2"
+                                Opacity="0" Height="0" Width="0"
                                 SelectedDateChanged="ResetDatePicker_SelectedDateChanged"/>
                 </Grid>
                 
