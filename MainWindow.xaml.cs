@@ -142,7 +142,7 @@ namespace PasswordProtector
             if (sender is Button button && button.Tag is Account account)
             {
                 Clipboard.SetText(account.Password);
-                MessageBox.Show("비밀번호가 클립보드에 복사되었습니다.", "복사 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                // MessageBox.Show("비밀번호가 클립보드에 복사되었습니다.", "복사 완료", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

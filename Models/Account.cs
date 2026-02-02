@@ -33,5 +33,35 @@ namespace PasswordProtector.Models
         }
         
         public bool IsPasswordVisible { get; set; } = false;
+        
+        public string DisplayPassword
+        {
+            get
+            {
+                if (IsPasswordVisible)
+                    return Password;
+                return string.IsNullOrEmpty(Password) ? "" : "••••••••";
+            }
+        }
+        
+        public string ModifiedDateDisplay
+        {
+            get
+            {
+                return LastPasswordChangeDate.HasValue 
+                    ? LastPasswordChangeDate.Value.ToString("yyyy.MM.dd.") 
+                    : "";
+            }
+        }
+        
+        public string ResetDateDisplay
+        {
+            get
+            {
+                return ResetDate.HasValue 
+                    ? ResetDate.Value.ToString("yyyy.MM.dd.") 
+                    : "";
+            }
+        }
     }
 }

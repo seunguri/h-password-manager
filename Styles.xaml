@@ -110,8 +110,8 @@
         <Setter Property="Background" Value="Transparent"/>
         <Setter Property="Stylus.IsPressAndHoldEnabled" Value="False"/>
         <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
-        <Setter Property="Width" Value="6"/>
-        <Setter Property="MinWidth" Value="6"/>
+        <Setter Property="Width" Value="10"/>
+        <Setter Property="MinWidth" Value="10"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="ScrollBar">
