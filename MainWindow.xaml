@@ -203,10 +203,10 @@
                                     </ItemsControl>
                                     
                                     <!-- Date Info -->
-                                    <TextBlock FontSize="11" Foreground="#808080" Margin="0,0,0,6">
+                                    <!-- <TextBlock FontSize="11" Foreground="#808080" Margin="0,0,0,6">
                                         <Run Text="수정일: "/><Run Text="{Binding ModifiedDateDisplay, Mode=OneWay}"/>
                                         <Run Text="  리셋일: "/><Run Text="{Binding ResetDateDisplay, Mode=OneWay}"/>
-                                    </TextBlock>
+                                    </TextBlock> -->
                                     
                                     <!-- Notes -->
                                     <TextBlock Text="{Binding Notes}" FontSize="12" Foreground="#808080" TextWrapping="Wrap"/>

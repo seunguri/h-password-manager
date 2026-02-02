@@ -14,6 +14,9 @@ namespace PasswordProtector.Windows
         public Account Account { get; private set; }
         private readonly TagService _tagService;
         private ObservableCollection<string> _tags;
+        private bool _isPasswordVisible = false;
+        private bool _isSyncingPassword = false;
+        private DateTime? _selectedResetDate;
 
         public AccountDialog(Account? account = null)
         {
@@ -40,6 +43,8 @@ namespace PasswordProtector.Windows
                 };
                 
                 PasswordBox.Password = account.Password;
+                _selectedResetDate = account.ResetDate;
+                UpdateResetDateDisplay();
                 
                 // Load tags
                 if (!string.IsNullOrEmpty(account.Tags))
@@ -65,57 +70,25 @@ namespace PasswordProtector.Windows
             }
             
             DataContext = Account;
-            LoadTagSuggestions();
         }
 
-        private void LoadTagSuggestions()
+        private void UpdateResetDateDisplay()
         {
-            var allTags = _tagService.GetAllTags();
-            TagComboBox.ItemsSource = allTags;
+            ResetDateTextBox.Text = _selectedResetDate?.ToString("yyyy-MM-dd") ?? "";
         }
 
-        private void TagComboBox_KeyDown(object sender, KeyEventArgs e)
+        private void TagTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
             {
                 AddTag();
                 e.Handled = true;
             }
-            else if (e.Key == Key.Escape)
-            {
-                TagComboBox.IsDropDownOpen = false;
-            }
-        }
-
-        private void TagComboBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            var text = TagComboBox.Text;
-            if (!string.IsNullOrWhiteSpace(text))
-            {
-                var suggestions = _tagService.GetSuggestions(text);
-                TagComboBox.ItemsSource = suggestions;
-                TagComboBox.IsDropDownOpen = true;
-            }
-            else
-            {
-                LoadTagSuggestions();
-                TagComboBox.IsDropDownOpen = true;
-            }
-        }
-
-        private void TagComboBox_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
-        {
-            if (TagComboBox.SelectedItem is string selectedTag)
-            {
-                TagComboBox.Text = selectedTag;
-                AddTag();
-                TagComboBox.SelectedItem = null;
-            }
         }
 
         private void AddTag()
         {
-            var tagText = TagComboBox.Text?.Trim();
+            var tagText = TagTextBox.Text?.Trim();
             if (string.IsNullOrWhiteSpace(tagText))
             {
                 return;
@@ -124,16 +97,13 @@ namespace PasswordProtector.Windows
             // Check if tag already exists
             if (_tags.Any(t => t.Equals(tagText, StringComparison.OrdinalIgnoreCase)))
             {
-                TagComboBox.Text = string.Empty;
-                TagComboBox.IsDropDownOpen = false;
+                TagTextBox.Text = string.Empty;
                 return;
             }
 
             _tags.Add(tagText);
             _tagService.AddTag(tagText);
-            TagComboBox.Text = string.Empty;
-            TagComboBox.IsDropDownOpen = false;
-            LoadTagSuggestions();
+            TagTextBox.Text = string.Empty;
         }
 
         private void RemoveTagButton_Click(object sender, RoutedEventArgs e)
@@ -146,8 +116,9 @@ namespace PasswordProtector.Windows
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            Account.Password = PasswordBox.Password;
-            Account.ResetDate = ResetDatePicker.SelectedDate;
+            Account.Password = _isPasswordVisible ? PasswordTextBox.Text : PasswordBox.Password;
+            Account.ResetDate = _selectedResetDate;
+            Account.LastPasswordChangeDate = DateTime.Now;
             Account.Tags = string.Join(",", _tags);
             DialogResult = true;
             Close();
@@ -165,54 +136,58 @@ namespace PasswordProtector.Windows
             Close();
         }
 
-        private void AddTagButton_Click(object sender, RoutedEventArgs e)
-        {
-            AddTag();
-        }
-
-        private bool _isPasswordVisible = false;
-        private System.Windows.Controls.TextBox? _passwordTextBox;
-        
         private void TogglePasswordButton_Click(object sender, RoutedEventArgs e)
         {
             _isPasswordVisible = !_isPasswordVisible;
-            var grid = PasswordBox.Parent as System.Windows.Controls.Grid;
-            if (grid == null) return;
             
             if (_isPasswordVisible)
             {
                 // Show password as text
-                if (_passwordTextBox == null)
-                {
-                    _passwordTextBox = new System.Windows.Controls.TextBox
-                    {
-                        Text = PasswordBox.Password,
-                        Background = PasswordBox.Background,
-                        BorderBrush = PasswordBox.BorderBrush,
-                        Foreground = PasswordBox.Foreground,
-                        Padding = new Thickness(10, 8, 10, 8)
-                    };
-                }
-                else
-                {
-                    _passwordTextBox.Text = PasswordBox.Password;
-                }
-                
-                grid.Children.Remove(PasswordBox);
-                System.Windows.Controls.Grid.SetColumn(_passwordTextBox, 0);
-                grid.Children.Insert(0, _passwordTextBox);
+                PasswordTextBox.Text = PasswordBox.Password;
+                PasswordBox.Visibility = Visibility.Collapsed;
+                PasswordTextBox.Visibility = Visibility.Visible;
+                TogglePasswordBtn.Content = "👁‍🗨";
             }
             else
             {
                 // Show password as password box
-                if (_passwordTextBox != null)
-                {
-                    PasswordBox.Password = _passwordTextBox.Text;
-                    grid.Children.Remove(_passwordTextBox);
-                }
-                System.Windows.Controls.Grid.SetColumn(PasswordBox, 0);
-                grid.Children.Insert(0, PasswordBox);
+                PasswordBox.Password = PasswordTextBox.Text;
+                PasswordTextBox.Visibility = Visibility.Collapsed;
+                PasswordBox.Visibility = Visibility.Visible;
+                TogglePasswordBtn.Content = "👁";
             }
+        }
+
+        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (_isSyncingPassword) return;
+            _isSyncingPassword = true;
+            PasswordTextBox.Text = PasswordBox.Password;
+            _isSyncingPassword = false;
+        }
+
+        private void PasswordTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+        {
+            if (_isSyncingPassword) return;
+            _isSyncingPassword = true;
+            PasswordBox.Password = PasswordTextBox.Text;
+            _isSyncingPassword = false;
+        }
+
+        private void SelectDateButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResetDatePicker.IsDropDownOpen = true;
+        }
+
+        private void ResetDateTextBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ResetDatePicker.IsDropDownOpen = true;
+        }
+
+        private void ResetDatePicker_SelectedDateChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            _selectedResetDate = ResetDatePicker.SelectedDate;
+            UpdateResetDateDisplay();
         }
     }
 }
