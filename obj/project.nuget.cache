@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "dgSpecHash": "hNzVqOY9y6U=",
+  "success": true,
+  "projectFilePath": "C:\\Workspace\\passwordProtector\\PasswordProtector.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\HWPS\\.nuget\\packages\\ini-parser\\2.5.2\\ini-parser.2.5.2.nupkg.sha512",
+    "C:\\Users\\HWPS\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.23\\microsoft.net.illink.tasks.8.0.23.nupkg.sha512",
+    "C:\\Users\\HWPS\\.nuget\\packages\\microsoft.win32.systemevents\\10.0.2\\microsoft.win32.systemevents.10.0.2.nupkg.sha512",
+    "C:\\Users\\HWPS\\.nuget\\packages\\system.drawing.common\\10.0.2\\system.drawing.common.10.0.2.nupkg.sha512",
+    "C:\\Users\\HWPS\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.23\\microsoft.netcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
+    "C:\\Users\\HWPS\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.23\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.23.nupkg.sha512",
+    "C:\\Users\\HWPS\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.23\\microsoft.aspnetcore.app.runtime.win-x64.8.0.23.nupkg.sha512",
+    "C:\\Users\\HWPS\\.nuget\\packages\\microsoft.netcore.app.crossgen2.win-x64\\8.0.23\\microsoft.netcore.app.crossgen2.win-x64.8.0.23.nupkg.sha512"
+  ],
+  "logs": []
+}
