@@ -99,8 +99,9 @@ namespace PasswordProtector
             {
                 _accounts.Add(dialog.Account);
                 SaveAccounts();
-                ApplyFilters();
             }
+            // Reload to reflect any tag deletions
+            LoadAccounts();
         }
 
         private void AccountCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -115,9 +116,10 @@ namespace PasswordProtector
                     {
                         _accounts[index] = dialog.Account;
                         SaveAccounts();
-                        ApplyFilters();
                     }
                 }
+                // Reload to reflect any tag deletions
+                LoadAccounts();
             }
         }
 

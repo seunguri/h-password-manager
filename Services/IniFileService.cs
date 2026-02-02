@@ -61,6 +61,11 @@ namespace PasswordProtector.Services
                     {
                         account.ResetDate = resetDate;
                     }
+                    
+                    if (int.TryParse(data[section.SectionName]["ResetPeriodDays"], out var periodDays))
+                    {
+                        account.ResetPeriodDays = periodDays;
+                    }
 
                     accounts.Add(account);
                 }
@@ -98,6 +103,11 @@ namespace PasswordProtector.Services
                 if (account.ResetDate.HasValue)
                 {
                     data[sectionName]["ResetDate"] = account.ResetDate.Value.ToString("yyyy-MM-dd");
+                }
+                
+                if (account.ResetPeriodDays.HasValue)
+                {
+                    data[sectionName]["ResetPeriodDays"] = account.ResetPeriodDays.Value.ToString();
                 }
             }
 
