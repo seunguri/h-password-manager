@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PasswordProtector")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d639c71e7602745b41b1db2eaa6e1cf014778916")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e72f7ec3ade272309410f81c80bcbafa98a2bf45")]
 [assembly: System.Reflection.AssemblyProductAttribute("PasswordProtector")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PasswordProtector")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

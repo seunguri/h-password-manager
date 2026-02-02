@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="Password Protector" Height="700" Width="1000"
+        Title="계정 관리" Height="700" Width="1400"
         WindowStartupLocation="CenterScreen"
         Background="#1E1E1E"
         KeyDown="Window_KeyDown"
@@ -155,13 +155,13 @@
                 <ItemsControl x:Name="AccountCardsControl">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                            <UniformGrid Columns="2"/>
+                            <WrapPanel Orientation="Horizontal"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Background="#252526" CornerRadius="6" Padding="16" Margin="0,0,12,12"
-                                    BorderBrush="#3F3F46" BorderThickness="1"
+                                    BorderBrush="#3F3F46" BorderThickness="1" Height="160" Width="320"
                                     Cursor="Hand" MouseLeftButtonDown="AccountCard_MouseLeftButtonDown">
                                 <StackPanel>
                                     <!-- Service Name & Status -->
@@ -201,12 +201,6 @@
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
-                                    
-                                    <!-- Date Info -->
-                                    <!-- <TextBlock FontSize="11" Foreground="#808080" Margin="0,0,0,6">
-                                        <Run Text="수정일: "/><Run Text="{Binding ModifiedDateDisplay, Mode=OneWay}"/>
-                                        <Run Text="  리셋일: "/><Run Text="{Binding ResetDateDisplay, Mode=OneWay}"/>
-                                    </TextBlock> -->
                                     
                                     <!-- Notes -->
                                     <TextBlock Text="{Binding Notes}" FontSize="12" Foreground="#808080" TextWrapping="Wrap"/>
@@ -288,7 +282,7 @@
                 <!-- Status Section -->
                 <TextBlock Text="📊 상태 표시" FontSize="16" FontWeight="Bold" Foreground="#DCDCDC" Margin="0,0,0,15"/>
                 
-                <StackPanel>
+                <StackPanel  Margin="0,0,0,20">
                     <Grid Margin="0,0,0,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -316,7 +310,27 @@
                         <TextBlock Grid.Column="1" Text="만료 기한 초과" FontSize="12" Foreground="#808080"/>
                     </Grid>
                 </StackPanel>
-            </StackPanel>
+
+                <!-- 상태표시 밑에 원본파일 위치 정보 추가 -->
+                <TextBlock Text="🔍 원본파일 위치" FontSize="16" FontWeight="Bold" Foreground="#DCDCDC" Margin="0,0,0,15"/>
+                 <StackPanel Margin="0,0,0,20">
+                    <Grid Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border Grid.Column="0" Background="#2D2D30" CornerRadius="4" Padding="6,4" Margin="0,0,8,0">
+                            <TextBlock Text="{Binding OriginalFilePath}" 
+                                       FontSize="12" 
+                                       Foreground="#3794FF" 
+                                       VerticalAlignment="Center"
+                                       Cursor="Hand"
+                                       TextDecorations="Underline"
+                                       MouseLeftButtonUp="OriginalFilePath_MouseLeftButtonUp"/>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </StackPanel>            
         </Border>
     </Grid>
 </Window>
