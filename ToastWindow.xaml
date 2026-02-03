@@ -8,8 +8,9 @@
         Topmost="True"
         ShowInTaskbar="False"
         ResizeMode="NoResize"
-        Width="280"
-        Height="80">
+        Width="300"
+        SizeToContent="Height"
+        MaxHeight="400">
     <Border Background="#2D2D30" 
             CornerRadius="8" 
             BorderBrush="#3F3F46" 
@@ -21,36 +22,64 @@
                               Opacity="0.5" 
                               Color="Black"/>
         </Border.Effect>
-        <Grid Margin="15,10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            
-            <!-- 아이콘 -->
-            <Border Grid.Column="0" 
-                    Width="36" Height="36" 
-                    CornerRadius="18" 
-                    Background="#0078D4"
-                    VerticalAlignment="Center"
-                    Margin="0,0,12,0">
-                <TextBlock Text="🔐" 
-                           FontSize="18" 
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center"/>
-            </Border>
-            
-            <!-- 텍스트 -->
-            <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                <TextBlock Text="계정 관리" 
+        <StackPanel Margin="15,12">
+            <!-- 헤더 -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <TextBlock Text="⚠️" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <TextBlock x:Name="HeaderText" 
+                           Text="만료 알림" 
                            Foreground="White" 
                            FontSize="13" 
-                           FontWeight="SemiBold"/>
-                <TextBlock Text="Ctrl+Shift+P로 열기" 
-                           Foreground="#9E9E9E" 
-                           FontSize="11"
-                           Margin="0,2,0,0"/>
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
             </StackPanel>
-        </Grid>
+            
+            <!-- 만료된 계정 섹션 -->
+            <StackPanel x:Name="ExpiredSection" Visibility="Collapsed">
+                <TextBlock Text="만료됨" 
+                           Foreground="#F48771" 
+                           FontSize="11" 
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,4"/>
+                <ItemsControl x:Name="ExpiredList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="8,2,0,2">
+                                <TextBlock Text="•" Foreground="#F48771" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding ServiceName}" Foreground="#E0E0E0" FontSize="12"/>
+                                <TextBlock Text="{Binding ExpiryDdayDisplay}" Foreground="#F48771" FontSize="11" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            
+            <!-- 만료 임박 계정 섹션 -->
+            <StackPanel x:Name="ExpiringSection" Visibility="Collapsed" Margin="0,8,0,0">
+                <TextBlock Text="만료 임박" 
+                           Foreground="#CE9178" 
+                           FontSize="11" 
+                           FontWeight="SemiBold"
+                           Margin="0,0,0,4"/>
+                <ItemsControl x:Name="ExpiringList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal" Margin="8,2,0,2">
+                                <TextBlock Text="•" Foreground="#CE9178" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding ServiceName}" Foreground="#E0E0E0" FontSize="12"/>
+                                <TextBlock Text="{Binding ExpiryDdayDisplay}" Foreground="#CE9178" FontSize="11" Margin="8,0,0,0"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </StackPanel>
+            
+            <!-- 안내 문구 -->
+            <TextBlock Text="Ctrl+Shift+P로 확인" 
+                       Foreground="#6E6E6E" 
+                       FontSize="10"
+                       Margin="0,10,0,0"
+                       HorizontalAlignment="Right"/>
+        </StackPanel>
     </Border>
 </Window>

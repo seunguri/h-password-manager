@@ -1,7 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media.Animation;
 using System.Windows.Threading;
+using PasswordProtector.Models;
+using PasswordProtector.Services;
 
 namespace PasswordProtector
 {
@@ -9,22 +13,41 @@ namespace PasswordProtector
     {
         private readonly DispatcherTimer _closeTimer;
 
-        public ToastWindow()
+        public ToastWindow(List<Account> expiredAccounts, List<Account> expiringAccounts)
         {
             InitializeComponent();
 
-            // 화면 오른쪽 아래에 위치 설정
-            var workArea = SystemParameters.WorkArea;
-            Left = workArea.Right - Width;
-            Top = workArea.Bottom - Height;
+            // 만료된 계정 표시
+            if (expiredAccounts.Any())
+            {
+                ExpiredSection.Visibility = Visibility.Visible;
+                ExpiredList.ItemsSource = expiredAccounts;
+            }
+
+            // 만료 임박 계정 표시
+            if (expiringAccounts.Any())
+            {
+                ExpiringSection.Visibility = Visibility.Visible;
+                ExpiringList.ItemsSource = expiringAccounts;
+                
+                // 만료된 계정이 없으면 상단 마진 제거
+                if (!expiredAccounts.Any())
+                {
+                    ExpiringSection.Margin = new Thickness(0);
+                }
+            }
+
+            // 헤더 텍스트 설정
+            var totalCount = expiredAccounts.Count + expiringAccounts.Count;
+            HeaderText.Text = $"만료 알림 ({totalCount}개)";
 
             // 초기 투명도 0으로 설정
             Opacity = 0;
 
-            // 자동 닫기 타이머 설정 (3초 후)
+            // 자동 닫기 타이머 설정 (5초 후)
             _closeTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(3)
+                Interval = TimeSpan.FromSeconds(5)
             };
             _closeTimer.Tick += (s, e) =>
             {
@@ -36,7 +59,12 @@ namespace PasswordProtector
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
-            
+
+            // 화면 오른쪽 아래에 위치 설정 (콘텐츠 렌더링 후 실제 높이로 계산)
+            var workArea = SystemParameters.WorkArea;
+            Left = workArea.Right - ActualWidth;
+            Top = workArea.Bottom - ActualHeight;
+
             // 슬라이드 업 + 페이드 인 애니메이션
             var slideAnimation = new DoubleAnimation
             {
@@ -84,12 +112,38 @@ namespace PasswordProtector
         }
 
         /// <summary>
-        /// 토스트 알림을 표시합니다.
+        /// 만료/만료 임박 계정이 있으면 토스트 알림을 표시합니다.
         /// </summary>
         public static void ShowToast()
         {
-            var toast = new ToastWindow();
-            toast.Show();
+            try
+            {
+                var iniFileService = new IniFileService();
+                var accounts = iniFileService.LoadAccounts();
+
+                // 만료된 계정 (D+1 이상)
+                var expiredAccounts = accounts
+                    .Where(a => a.DaysUntilExpiry.HasValue && a.DaysUntilExpiry < 0)
+                    .OrderBy(a => a.DaysUntilExpiry)
+                    .ToList();
+
+                // 만료 임박 계정 (D-7 이하, D-Day 포함)
+                var expiringAccounts = accounts
+                    .Where(a => a.DaysUntilExpiry.HasValue && a.DaysUntilExpiry >= 0 && a.DaysUntilExpiry <= 7)
+                    .OrderBy(a => a.DaysUntilExpiry)
+                    .ToList();
+
+                // 표시할 계정이 있을 때만 토스트 표시
+                if (expiredAccounts.Any() || expiringAccounts.Any())
+                {
+                    var toast = new ToastWindow(expiredAccounts, expiringAccounts);
+                    toast.Show();
+                }
+            }
+            catch
+            {
+                // 오류 발생 시 조용히 무시
+            }
         }
     }
 }
