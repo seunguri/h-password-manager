@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -218,6 +219,32 @@ namespace PasswordProtector
             }
         }
 
+        private void ShowAllPasswordsCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            SetAllPasswordsVisibility(true);
+        }
+
+        private void ShowAllPasswordsCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SetAllPasswordsVisibility(false);
+        }
+
+        private void SetAllPasswordsVisibility(bool visible)
+        {
+            foreach (var account in _filteredAccounts)
+            {
+                account.IsPasswordVisible = visible;
+            }
+            
+            // Force UI update by refreshing the collection
+            var tempList = _filteredAccounts.ToList();
+            _filteredAccounts.Clear();
+            foreach (var account in tempList)
+            {
+                _filteredAccounts.Add(account);
+            }
+        }
+
         private void CopyPassword_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is Account account)
@@ -383,21 +410,37 @@ namespace PasswordProtector
 
         private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
         private const string AppName = "PasswordProtector";
+        private bool _isStartupCheckBoxLoading = false;
 
-        private void StartupCheckBox_Loaded(object sender, RoutedEventArgs e)
+        private async void StartupCheckBox_Loaded(object sender, RoutedEventArgs e)
         {
-            // 현재 시작프로그램 등록 상태 확인
-            StartupCheckBox.IsChecked = IsStartupEnabled();
+            _isStartupCheckBoxLoading = true;
+            
+            // 비동기로 레지스트리 상태 확인 (UI 블로킹 방지)
+            var isEnabled = await Task.Run(() => IsStartupEnabled());
+            
+            // UI 스레드에서 체크박스 상태 업데이트
+            StartupCheckBox.IsChecked = isEnabled;
+            
+            _isStartupCheckBoxLoading = false;
         }
 
-        private void StartupCheckBox_Checked(object sender, RoutedEventArgs e)
+        private async void StartupCheckBox_Checked(object sender, RoutedEventArgs e)
         {
-            SetStartupEnabled(true);
+            // 로딩 중에는 레지스트리 변경하지 않음
+            if (_isStartupCheckBoxLoading) return;
+            
+            // 비동기로 레지스트리 설정 (UI 블로킹 방지)
+            await Task.Run(() => SetStartupEnabled(true));
         }
 
-        private void StartupCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        private async void StartupCheckBox_Unchecked(object sender, RoutedEventArgs e)
         {
-            SetStartupEnabled(false);
+            // 로딩 중에는 레지스트리 변경하지 않음
+            if (_isStartupCheckBoxLoading) return;
+            
+            // 비동기로 레지스트리 설정 (UI 블로킹 방지)
+            await Task.Run(() => SetStartupEnabled(false));
         }
 
         private bool IsStartupEnabled()
@@ -447,7 +490,11 @@ namespace PasswordProtector
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"시작프로그램 설정을 변경할 수 없습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                // UI 스레드에서 메시지 박스 표시
+                Application.Current.Dispatcher.Invoke(() =>
+                {
+                    MessageBox.Show($"시작프로그램 설정을 변경할 수 없습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+                });
             }
         }
 

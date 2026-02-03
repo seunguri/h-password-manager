@@ -376,8 +376,56 @@
                     </Border>
                 </StackPanel>
                 
-                <!-- 시작프로그램 설정 -->
+                <!-- 설정 -->
                 <TextBlock Text="⚙️ 설정" FontSize="16" FontWeight="Bold" Foreground="#DCDCDC" Margin="0,0,0,15"/>
+                
+                <CheckBox x:Name="ShowAllPasswordsCheckBox" 
+                          Content="전체 비밀번호 보이기" 
+                          Foreground="#DCDCDC" 
+                          FontSize="12"
+                          Margin="0,0,0,10"
+                          Checked="ShowAllPasswordsCheckBox_Checked"
+                          Unchecked="ShowAllPasswordsCheckBox_Unchecked">
+                    <CheckBox.Style>
+                        <Style TargetType="CheckBox">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="CheckBox">
+                                        <StackPanel Orientation="Horizontal">
+                                            <Border x:Name="CheckBoxBorder" 
+                                                    Width="18" Height="18" 
+                                                    Background="#2D2D30" 
+                                                    BorderBrush="#3F3F46" 
+                                                    BorderThickness="1" 
+                                                    CornerRadius="3"
+                                                    Margin="0,0,8,0">
+                                                <TextBlock x:Name="CheckMark" 
+                                                           Text="✓" 
+                                                           Foreground="#007ACC" 
+                                                           FontSize="12" 
+                                                           FontWeight="Bold"
+                                                           HorizontalAlignment="Center" 
+                                                           VerticalAlignment="Center"
+                                                           Visibility="Collapsed"/>
+                                            </Border>
+                                            <ContentPresenter VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
+                                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#007ACC"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#007ACC"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </CheckBox.Style>
+                </CheckBox>
+                
                 <CheckBox x:Name="StartupCheckBox" 
                           Content="Windows 시작 시 자동 실행" 
                           Foreground="#DCDCDC" 
