@@ -12,8 +12,6 @@ namespace PasswordProtector.Services
         private readonly string _iniFilePath;
         private readonly FileIniDataParser _parser;
         private HashSet<string> _allTags;
-        private HashSet<string> _deletedTags; // 삭제된 태그 추적
-
         public TagService()
         {
             var appDataPath = Path.Combine(
@@ -28,7 +26,6 @@ namespace PasswordProtector.Services
             _iniFilePath = Path.Combine(appDataPath, "tags.ini");
             _parser = new FileIniDataParser();
             _allTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            _deletedTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             LoadTags();
         }
 
@@ -43,7 +40,6 @@ namespace PasswordProtector.Services
             {
                 var trimmedTag = tag.Trim();
                 _allTags.Add(trimmedTag);
-                _deletedTags.Remove(trimmedTag); // 삭제 목록에서 제거 (다시 추가된 경우)
                 SaveTags();
             }
         }
@@ -51,7 +47,6 @@ namespace PasswordProtector.Services
         public void RemoveTag(string tag)
         {
             _allTags.Remove(tag);
-            _deletedTags.Add(tag); // 삭제된 태그로 기록
             SaveTags();
         }
 
@@ -86,7 +81,7 @@ namespace PasswordProtector.Services
             // Add default tags if file doesn't exist
             if (!File.Exists(_iniFilePath))
             {
-                var defaultTags = new[] { "업무망", "중요망", "인터넷망", "개발", "운영" };
+                var defaultTags = new[] { "업무망", "중요망", "인터넷망", "채널망", "개발", "운영" };
                 foreach (var tag in defaultTags)
                 {
                     _allTags.Add(tag);
@@ -115,19 +110,6 @@ namespace PasswordProtector.Services
                         }
                     }
                     
-                    // 삭제된 태그 목록 로드
-                    var deletedValue = tagsSection["DeletedTags"] ?? string.Empty;
-                    if (!string.IsNullOrEmpty(deletedValue))
-                    {
-                        var deleted = deletedValue.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
-                        foreach (var tag in deleted)
-                        {
-                            if (!string.IsNullOrWhiteSpace(tag))
-                            {
-                                _deletedTags.Add(tag.Trim());
-                            }
-                        }
-                    }
                 }
                 
                 // Ensure default tags exist (삭제된 태그는 제외)
@@ -135,7 +117,7 @@ namespace PasswordProtector.Services
                 bool hasChanges = false;
                 foreach (var tag in defaultTagsToAdd)
                 {
-                    if (!_allTags.Contains(tag) && !_deletedTags.Contains(tag))
+                    if (!_allTags.Contains(tag))
                     {
                         _allTags.Add(tag);
                         hasChanges = true;
@@ -165,10 +147,6 @@ namespace PasswordProtector.Services
                 var data = new IniData();
                 var tagList = string.Join("|", _allTags.OrderBy(t => t));
                 data["Tags"]["TagList"] = tagList;
-                
-                // 삭제된 태그 목록도 저장
-                var deletedList = string.Join("|", _deletedTags.OrderBy(t => t));
-                data["Tags"]["DeletedTags"] = deletedList;
                 
                 _parser.WriteFile(_iniFilePath, data);
             }

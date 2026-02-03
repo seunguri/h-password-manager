@@ -13,6 +13,9 @@ namespace PasswordProtector.Services
         private readonly string _iniFilePath;
         private readonly FileIniDataParser _parser;
 
+        // 원본 파일 경로를 외부에서 접근할 수 있도록 프로퍼티 추가
+        public string FilePath => _iniFilePath;
+
         public IniFileService()
         {
             var appDataPath = Path.Combine(

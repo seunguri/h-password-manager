@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="계정 관리" Height="700" Width="1400"
+        Title="계정 관리" Height="700" Width="1370"
         WindowStartupLocation="CenterScreen"
         Background="#1E1E1E"
         KeyDown="Window_KeyDown"
@@ -180,10 +180,61 @@
                                         </Border>
                                         <Button Content="👁" Tag="{Binding}" Click="TogglePassword_Click"
                                                 Background="Transparent" Foreground="#DCDCDC" BorderThickness="0"
-                                                FontSize="14" Padding="4" Margin="0,0,4,0" Cursor="Hand" VerticalAlignment="Center"/>
+                                                FontSize="14" Padding="4" Margin="0,0,4,0" Cursor="Hand" VerticalAlignment="Center">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Foreground" Value="#DCDCDC"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="Padding" Value="4"/>
+                                                    <Setter Property="Margin" Value="0,0,4,0"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderThickness" Value="1"/>
+                                                            <Setter Property="BorderBrush" Value="#007ACC"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                         <Button Content="📋" Tag="{Binding}" Click="CopyPassword_Click"
                                                 Background="Transparent" Foreground="#DCDCDC" BorderThickness="0"
-                                                FontSize="14" Padding="4" Cursor="Hand" VerticalAlignment="Center"/>
+                                                FontSize="14" Padding="4" Margin="0,0,4,0" Cursor="Hand" VerticalAlignment="Center">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Foreground" Value="#DCDCDC"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="Padding" Value="4"/>
+                                                    <Setter Property="Margin" Value="0,0,4,0"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderThickness" Value="1"/>
+                                                            <Setter Property="BorderBrush" Value="#1C97EA"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Content="🗑️" Tag="{Binding}" Click="DeleteAccount_Click"
+                                                Background="Transparent" Foreground="#F48771" BorderThickness="0"
+                                                FontSize="14" Padding="4" Cursor="Hand" VerticalAlignment="Center"
+                                                ToolTip="계정 삭제">
+                                            <Button.Style>
+                                                <Style TargetType="Button">
+                                                    <Setter Property="Background" Value="Transparent"/>
+                                                    <Setter Property="Foreground" Value="#F48771"/>
+                                                    <Setter Property="BorderThickness" Value="0"/>
+                                                    <Setter Property="Padding" Value="4"/>
+                                                    <Style.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderThickness" Value="1"/>
+                                                            <Setter Property="BorderBrush" Value="#F48771"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                     </StackPanel>
                                     
                                     <!-- Tags -->
@@ -312,23 +363,17 @@
                 </StackPanel>
 
                 <!-- 상태표시 밑에 원본파일 위치 정보 추가 -->
-                <TextBlock Text="🔍 원본파일 위치" FontSize="16" FontWeight="Bold" Foreground="#DCDCDC" Margin="0,0,0,15"/>
-                 <StackPanel Margin="0,0,0,20">
-                    <Grid Margin="0,0,0,8">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Background="#2D2D30" CornerRadius="4" Padding="6,4" Margin="0,0,8,0">
-                            <TextBlock Text="{Binding OriginalFilePath}" 
-                                       FontSize="12" 
-                                       Foreground="#3794FF" 
-                                       VerticalAlignment="Center"
-                                       Cursor="Hand"
-                                       TextDecorations="Underline"
-                                       MouseLeftButtonUp="OriginalFilePath_MouseLeftButtonUp"/>
-                        </Border>
-                    </Grid>
+                <TextBlock Text="📁 원본파일 위치" FontSize="16" FontWeight="Bold" Foreground="#DCDCDC" Margin="0,0,0,15"/>
+                <StackPanel Margin="0,0,0,20">
+                    <Border Background="#2D2D30" CornerRadius="4" Padding="8,6" 
+                            Cursor="Hand" MouseLeftButtonDown="OpenFilePath_Click">
+                        <TextBlock x:Name="FilePathText"
+                                   FontSize="11"
+                                   Foreground="#3794FF"
+                                   TextWrapping="Wrap"
+                                   TextDecorations="Underline"
+                                   ToolTip="클릭하면 파일 위치를 엽니다"/>
+                    </Border>
                 </StackPanel>
             </StackPanel>            
         </Border>

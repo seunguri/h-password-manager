@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -26,6 +28,9 @@ namespace PasswordProtector
             _tagService = new TagService();
             LoadAccounts();
             LoadTagFilters();
+            
+            // 원본 파일 경로 표시
+            FilePathText.Text = _iniFileService.FilePath;
             
             // Register global hotkey when window handle is created
             this.SourceInitialized += MainWindow_SourceInitialized;
@@ -148,6 +153,29 @@ namespace PasswordProtector
             }
         }
 
+        private void DeleteAccount_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true; // Prevent card click event from firing
+            
+            if (sender is Button button && button.Tag is Account account)
+            {
+                var result = MessageBox.Show(
+                    $"'{account.ServiceName}' 계정을 삭제하시겠습니까?",
+                    "계정 삭제 확인",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+                
+                if (result == MessageBoxResult.Yes)
+                {
+                    _accounts.Remove(account);
+                    _filteredAccounts.Remove(account);
+                    SaveAccounts();
+                    UpdateAccountCount();
+                    LoadTagFilters();
+                }
+            }
+        }
+
         private void TagFilter_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border && border.DataContext is string tag)
@@ -236,6 +264,36 @@ namespace PasswordProtector
             e.Cancel = true;
             this.WindowState = WindowState.Minimized;
             this.Hide();
+        }
+
+        private void OpenFilePath_Click(object sender, MouseButtonEventArgs e)
+        {
+            try
+            {
+                var filePath = _iniFileService.FilePath;
+                if (File.Exists(filePath))
+                {
+                    // 파일이 있는 폴더를 열고 해당 파일을 선택
+                    Process.Start("explorer.exe", $"/select,\"{filePath}\"");
+                }
+                else
+                {
+                    // 파일이 없으면 폴더만 열기
+                    var directory = Path.GetDirectoryName(filePath);
+                    if (directory != null && Directory.Exists(directory))
+                    {
+                        Process.Start("explorer.exe", directory);
+                    }
+                    else
+                    {
+                        MessageBox.Show("파일 경로를 찾을 수 없습니다.", "오류", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"파일 경로를 열 수 없습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
