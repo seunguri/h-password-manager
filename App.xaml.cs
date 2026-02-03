@@ -97,8 +97,11 @@ namespace PasswordProtector
             contextMenu.Items.Add(exitMenuItem);
             _notifyIcon.ContextMenuStrip = contextMenu;
 
-            // 프로그램 시작 시 토스트 알림 (작업표시줄 오른쪽 아래)
-            ShowStartupToast();
+            // MainWindow가 로드된 후 토스트 알림 표시 (ToastWindow가 MainWindow로 설정되는 것 방지)
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                ShowStartupToast();
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         private static void ShowStartupToast()

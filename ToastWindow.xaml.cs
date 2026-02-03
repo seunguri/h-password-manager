@@ -47,7 +47,7 @@ namespace PasswordProtector
             // 자동 닫기 타이머 설정 (5초 후)
             _closeTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromSeconds(5)
+                Interval = TimeSpan.FromSeconds(6)
             };
             _closeTimer.Tick += (s, e) =>
             {
@@ -137,7 +137,13 @@ namespace PasswordProtector
                 if (expiredAccounts.Any() || expiringAccounts.Any())
                 {
                     var toast = new ToastWindow(expiredAccounts, expiringAccounts);
+                    // ToastWindow가 Application.MainWindow로 설정되지 않도록 방지
+                    var currentMain = Application.Current.MainWindow;
                     toast.Show();
+                    if (currentMain != null)
+                    {
+                        Application.Current.MainWindow = currentMain;
+                    }
                 }
             }
             catch
