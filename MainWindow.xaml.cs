@@ -4,9 +4,11 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Microsoft.Win32;
 using PasswordProtector.Models;
 using PasswordProtector.Services;
 using PasswordProtector.Windows;
@@ -26,6 +28,9 @@ namespace PasswordProtector
             _iniFileService = new IniFileService();
             LoadAccounts();
             LoadTagFilters();
+            
+            // 만료 임박/초과 계정 알림 표시
+            ShowExpiryNotification();
             
             // 원본 파일 경로 표시
             FilePathText.Text = _iniFileService.FilePath;
@@ -74,6 +79,78 @@ namespace PasswordProtector
             var tagService = new TagService();
             var allTags = tagService.GetAllTags();
             TagFilterControl.ItemsSource = allTags;
+        }
+
+        private void ShowExpiryNotification()
+        {
+            try
+            {
+                // 만료된 계정 (D+, 음수 일수)
+                var expiredAccounts = _accounts
+                    .Where(a => a.DaysUntilExpiry.HasValue && a.DaysUntilExpiry < 0)
+                    .OrderBy(a => a.DaysUntilExpiry)
+                    .ToList();
+                
+                // 만료 임박 계정 (7일 이내, D-Day 포함)
+                var soonExpiringAccounts = _accounts
+                    .Where(a => a.DaysUntilExpiry.HasValue && a.DaysUntilExpiry >= 0 && a.DaysUntilExpiry <= 7)
+                    .OrderBy(a => a.DaysUntilExpiry)
+                    .ToList();
+                
+                // 알림할 계정이 없으면 종료
+                if (expiredAccounts.Count == 0 && soonExpiringAccounts.Count == 0)
+                    return;
+                
+                // 알림 메시지 구성
+                var contentBuilder = new StringBuilder();
+                
+                if (expiredAccounts.Count > 0)
+                {
+                    contentBuilder.AppendLine($"[만료됨] ({expiredAccounts.Count}개)");
+                    foreach (var account in expiredAccounts.Take(3))
+                    {
+                        contentBuilder.AppendLine($"  {account.ServiceName} ({account.ExpiryDdayDisplay})");
+                    }
+                    if (expiredAccounts.Count > 3)
+                    {
+                        contentBuilder.AppendLine($"  ... 외 {expiredAccounts.Count - 3}개");
+                    }
+                }
+                
+                if (soonExpiringAccounts.Count > 0)
+                {
+                    if (contentBuilder.Length > 0)
+                        contentBuilder.AppendLine();
+                    
+                    contentBuilder.AppendLine($"[만료 임박] ({soonExpiringAccounts.Count}개)");
+                    foreach (var account in soonExpiringAccounts.Take(3))
+                    {
+                        contentBuilder.AppendLine($"  {account.ServiceName} ({account.ExpiryDdayDisplay})");
+                    }
+                    if (soonExpiringAccounts.Count > 3)
+                    {
+                        contentBuilder.AppendLine($"  ... 외 {soonExpiringAccounts.Count - 3}개");
+                    }
+                }
+                
+                // 시스템 트레이 벌룬 알림 표시 (5초간)
+                var app = System.Windows.Application.Current as App;
+                var trayIcon = app?.TrayIcon;
+                if (trayIcon != null)
+                {
+                    trayIcon.ShowBalloonTip(
+                        5000, // 5초
+                        "비밀번호 만료 알림",
+                        contentBuilder.ToString().TrimEnd(),
+                        System.Windows.Forms.ToolTipIcon.Warning
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                // 알림 실패 시 조용히 무시 (프로그램 실행에 영향 없음)
+                Debug.WriteLine($"Notification error: {ex.Message}");
+            }
         }
 
         private void UpdateAccountCount()
@@ -301,5 +378,79 @@ namespace PasswordProtector
                 MessageBox.Show($"파일 경로를 열 수 없습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
+
+        #region 시작프로그램 설정
+
+        private const string StartupRegistryKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Run";
+        private const string AppName = "PasswordProtector";
+
+        private void StartupCheckBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            // 현재 시작프로그램 등록 상태 확인
+            StartupCheckBox.IsChecked = IsStartupEnabled();
+        }
+
+        private void StartupCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            SetStartupEnabled(true);
+        }
+
+        private void StartupCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            SetStartupEnabled(false);
+        }
+
+        private bool IsStartupEnabled()
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.OpenSubKey(StartupRegistryKey, false))
+                {
+                    if (key != null)
+                    {
+                        var value = key.GetValue(AppName);
+                        return value != null;
+                    }
+                }
+            }
+            catch
+            {
+                // 레지스트리 접근 실패 시 false 반환
+            }
+            return false;
+        }
+
+        private void SetStartupEnabled(bool enable)
+        {
+            try
+            {
+                using (var key = Registry.CurrentUser.OpenSubKey(StartupRegistryKey, true))
+                {
+                    if (key != null)
+                    {
+                        if (enable)
+                        {
+                            // 현재 실행 파일 경로를 레지스트리에 등록
+                            var exePath = Process.GetCurrentProcess().MainModule?.FileName;
+                            if (!string.IsNullOrEmpty(exePath))
+                            {
+                                key.SetValue(AppName, $"\"{exePath}\"");
+                            }
+                        }
+                        else
+                        {
+                            // 레지스트리에서 삭제
+                            key.DeleteValue(AppName, false);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"시작프로그램 설정을 변경할 수 없습니다: {ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        #endregion
     }
 }

@@ -10,6 +10,9 @@ namespace PasswordProtector
     {
         private NotifyIcon? _notifyIcon;
         private HotKeyService? _hotKeyService;
+        
+        // 외부에서 벌룬 알림을 표시할 수 있도록 공개
+        public NotifyIcon? TrayIcon => _notifyIcon;
 
         public void RegisterHotKey(Window window)
         {
