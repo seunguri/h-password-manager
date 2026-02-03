@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
+using Microsoft.Toolkit.Uwp.Notifications;
 using PasswordProtector.Services;
 using Application = System.Windows.Application;
 
@@ -15,6 +16,7 @@ namespace PasswordProtector
         
         // 외부에서 벌룬 알림을 표시할 수 있도록 공개
         public NotifyIcon? TrayIcon => _notifyIcon;
+
 
         public void RegisterHotKey(Window window)
         {
@@ -94,6 +96,14 @@ namespace PasswordProtector
             contextMenu.Items.Add(showMenuItem);
             contextMenu.Items.Add(exitMenuItem);
             _notifyIcon.ContextMenuStrip = contextMenu;
+
+            // 프로그램 시작 시 토스트 알림 (작업표시줄 오른쪽 아래)
+            ShowStartupToast();
+        }
+
+        private static void ShowStartupToast()
+        {
+            ToastWindow.ShowToast();
         }
 
         private void ShowMainWindow()
