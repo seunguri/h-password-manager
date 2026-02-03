@@ -5,7 +5,6 @@
 ## 기능
 
 - 계정 정보 관리 (서비스명, 아이디, 비밀번호, 마지막 비밀번호 변경일, 비고, 태그)
-- 계정 목록 드래그 앤 드롭으로 순서 변경
 - CRUD 기능 (생성, 읽기, 수정, 삭제)
 - INI 파일에 계정 정보 저장
 - 검색 기능 (서비스명, 아이디, 태그, 비고 검색)
@@ -34,6 +33,8 @@ dotnet publish -c Release -r win-x64 --self-contained true
 ```
 
 실행 파일은 `bin/Release/net8.0-windows/win-x64/publish/` 폴더에 생성됩니다.
+
+**실행 파일 공유:** WPF 앱은 exe와 함께 여러 네이티브 DLL이 필요하므로, **publish 폴더 전체**를 압축해서 공유하세요. (`PasswordProtector.pdb`는 디버그용이라 제외해도 됩니다.)해
 
 ## 데이터 저장 위치
 

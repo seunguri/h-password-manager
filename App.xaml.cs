@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
 using PasswordProtector.Services;
@@ -8,6 +9,7 @@ namespace PasswordProtector
 {
     public partial class App : Application
     {
+        private static Mutex? _singleInstanceMutex;
         private NotifyIcon? _notifyIcon;
         private HotKeyService? _hotKeyService;
         
@@ -43,6 +45,19 @@ namespace PasswordProtector
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            const string mutexName = "PasswordProtector_SingleInstance_Mutex";
+            _singleInstanceMutex = new Mutex(true, mutexName, out bool createdNew);
+            if (!createdNew)
+            {
+                System.Windows.MessageBox.Show(
+                    "프로그램이 이미 실행 중입니다.",
+                    "계정 관리",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                Shutdown();
+                return;
+            }
+
             base.OnStartup(e);
 
             // Create system tray icon
@@ -96,6 +111,8 @@ namespace PasswordProtector
         {
             _hotKeyService?.Unregister();
             _notifyIcon?.Dispose();
+            _singleInstanceMutex?.ReleaseMutex();
+            _singleInstanceMutex?.Dispose();
             base.OnExit(e);
         }
     }
