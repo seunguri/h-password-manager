@@ -16,7 +16,6 @@ namespace PasswordProtector
     public partial class MainWindow : Window
     {
         private readonly IniFileService _iniFileService;
-        private readonly TagService _tagService;
         private ObservableCollection<Account> _accounts;
         private ObservableCollection<Account> _filteredAccounts;
         private HashSet<string> _selectedTags = new HashSet<string>();
@@ -25,7 +24,6 @@ namespace PasswordProtector
         {
             InitializeComponent();
             _iniFileService = new IniFileService();
-            _tagService = new TagService();
             LoadAccounts();
             LoadTagFilters();
             
@@ -72,7 +70,9 @@ namespace PasswordProtector
 
         private void LoadTagFilters()
         {
-            var allTags = _tagService.GetAllTags();
+            // 태그 파일에서 최신 데이터를 읽기 위해 새 인스턴스 생성
+            var tagService = new TagService();
+            var allTags = tagService.GetAllTags();
             TagFilterControl.ItemsSource = allTags;
         }
 
@@ -81,50 +81,47 @@ namespace PasswordProtector
             AccountCountText.Text = $"총 {_filteredAccounts.Count}개의 계정";
         }
 
-        private void SaveAccounts()
-        {
-            _iniFileService.SaveAccounts(_accounts.ToList());
-            
-            // Update tag service with all tags from accounts
-            var allTags = _accounts
-                .Where(a => !string.IsNullOrEmpty(a.Tags))
-                .SelectMany(a => a.Tags.Split(new[] { ',', '|' }, StringSplitOptions.RemoveEmptyEntries)
-                    .Select(t => t.Trim())
-                    .Where(t => !string.IsNullOrEmpty(t)))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-            
-            _tagService.UpdateTagsFromAccounts(allTags);
-        }
-
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             var dialog = new AccountDialog();
             if (dialog.ShowDialog() == true)
             {
-                _accounts.Add(dialog.Account);
-                SaveAccounts();
+                // 파일에서 최신 데이터 로드 후 새 계정 추가
+                var freshAccounts = _iniFileService.LoadAccounts();
+                freshAccounts.Add(dialog.Account);
+                _iniFileService.SaveAccounts(freshAccounts);
             }
-            // Reload to reflect any tag deletions
+            // 변경사항 반영을 위해 다시 로드
             LoadAccounts();
+            LoadTagFilters();
         }
 
         private void AccountCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border && border.DataContext is Account account)
             {
+                var originalServiceName = account.ServiceName;
+                var originalUsername = account.Username;
+                
                 var dialog = new AccountDialog(account);
                 if (dialog.ShowDialog() == true)
                 {
-                    var index = _accounts.IndexOf(account);
+                    // 파일에서 최신 데이터 로드 (다이얼로그에서 태그 삭제 등의 변경사항 반영)
+                    var freshAccounts = _iniFileService.LoadAccounts();
+                    
+                    // 수정된 계정 찾아서 업데이트
+                    var index = freshAccounts.FindIndex(a => 
+                        a.ServiceName == originalServiceName && a.Username == originalUsername);
+                    
                     if (index >= 0)
                     {
-                        _accounts[index] = dialog.Account;
-                        SaveAccounts();
+                        freshAccounts[index] = dialog.Account;
+                        _iniFileService.SaveAccounts(freshAccounts);
                     }
                 }
-                // Reload to reflect any tag deletions
+                // 변경사항 반영을 위해 다시 로드
                 LoadAccounts();
+                LoadTagFilters();
             }
         }
 
@@ -160,17 +157,26 @@ namespace PasswordProtector
             if (sender is Button button && button.Tag is Account account)
             {
                 var result = MessageBox.Show(
-                    $"'{account.ServiceName}' 계정을 삭제하시겠습니까?",
+                    $"'{account.ServiceName}' 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",
                     "계정 삭제 확인",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
                 
                 if (result == MessageBoxResult.Yes)
                 {
-                    _accounts.Remove(account);
-                    _filteredAccounts.Remove(account);
-                    SaveAccounts();
-                    UpdateAccountCount();
+                    // 파일에서 최신 데이터 로드 후 계정 삭제
+                    var freshAccounts = _iniFileService.LoadAccounts();
+                    var accountToRemove = freshAccounts.FirstOrDefault(a => 
+                        a.ServiceName == account.ServiceName && a.Username == account.Username);
+                    
+                    if (accountToRemove != null)
+                    {
+                        freshAccounts.Remove(accountToRemove);
+                        _iniFileService.SaveAccounts(freshAccounts);
+                    }
+                    
+                    // 변경사항 반영을 위해 다시 로드
+                    LoadAccounts();
                     LoadTagFilters();
                 }
             }

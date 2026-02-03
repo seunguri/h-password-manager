@@ -109,28 +109,12 @@ namespace PasswordProtector.Services
                             }
                         }
                     }
-                    
                 }
-                
-                // Ensure default tags exist (삭제된 태그는 제외)
-                var defaultTagsToAdd = new[] { "업무망", "중요망", "인터넷망", "채널망", "개발", "운영" };
-                bool hasChanges = false;
-                foreach (var tag in defaultTagsToAdd)
-                {
-                    if (!_allTags.Contains(tag))
-                    {
-                        _allTags.Add(tag);
-                        hasChanges = true;
-                    }
-                }
-                if (hasChanges)
-                {
-                    SaveTags();
-                }
+                // 파일이 존재하면 저장된 태그만 사용 (기본 태그 자동 추가하지 않음)
             }
             catch
             {
-                // Ignore errors, but ensure default tags exist
+                // 파일 읽기 실패 시에만 기본 태그 사용
                 var defaultTags = new[] { "업무망", "중요망", "인터넷망", "채널망", "개발", "운영" };
                 foreach (var tag in defaultTags)
                 {
