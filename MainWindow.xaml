@@ -161,7 +161,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Background="#252526" CornerRadius="6" Padding="16" Margin="0,0,12,12"
-                                    BorderBrush="#3F3F46" BorderThickness="1" Height="160" Width="320"
+                                    BorderBrush="#3F3F46" BorderThickness="1" Height="175" Width="320"
                                     Cursor="Hand" MouseLeftButtonDown="AccountCard_MouseLeftButtonDown">
                                 <StackPanel>
                                     <!-- Service Name & Status -->
@@ -254,7 +254,9 @@
                                     </ItemsControl>
                                     
                                     <!-- Notes -->
-                                    <TextBlock Text="{Binding Notes}" FontSize="12" Foreground="#808080" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding Notes}" FontSize="12" Foreground="#808080" 
+                                               TextTrimming="CharacterEllipsis" MaxHeight="18"
+                                               ToolTip="{Binding Notes}"/>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>

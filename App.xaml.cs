@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
@@ -47,6 +48,14 @@ namespace PasswordProtector
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            // 전역 예외 로깅 (디버깅용)
+            AppDomain.CurrentDomain.UnhandledException += (s, args) =>
+            {
+                var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fatal.log");
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                File.AppendAllText(logPath, $"[{timestamp}]\n{args.ExceptionObject}\n\n");
+            };
+
             const string mutexName = "PasswordProtector_SingleInstance_Mutex";
             _singleInstanceMutex = new Mutex(true, mutexName, out bool createdNew);
             if (!createdNew)

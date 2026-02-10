@@ -45,12 +45,16 @@ namespace PasswordProtector.Services
 
                 foreach (var section in data.Sections)
                 {
+                    // Notes의 줄바꿈 문자 디코딩 (\\n -> 실제 줄바꿈)
+                    var notesRaw = data[section.SectionName]["Notes"] ?? string.Empty;
+                    var notesDecoded = notesRaw.Replace("\\n", "\n").Replace("\\r", "\r");
+
                     var account = new Account
                     {
                         ServiceName = data[section.SectionName]["ServiceName"] ?? string.Empty,
                         Username = data[section.SectionName]["Username"] ?? string.Empty,
                         Password = data[section.SectionName]["Password"] ?? string.Empty,
-                        Notes = data[section.SectionName]["Notes"] ?? string.Empty,
+                        Notes = notesDecoded,
                         Tags = data[section.SectionName]["Tags"] ?? string.Empty,
                         Order = int.TryParse(data[section.SectionName]["Order"], out var order) ? order : 0
                     };
@@ -94,7 +98,11 @@ namespace PasswordProtector.Services
                 data[sectionName]["ServiceName"] = account.ServiceName ?? string.Empty;
                 data[sectionName]["Username"] = account.Username ?? string.Empty;
                 data[sectionName]["Password"] = account.Password ?? string.Empty;
-                data[sectionName]["Notes"] = account.Notes ?? string.Empty;
+                
+                // Notes의 줄바꿈 문자 인코딩 (실제 줄바꿈 -> \\n)
+                var notesEncoded = (account.Notes ?? string.Empty).Replace("\r\n", "\\n").Replace("\n", "\\n").Replace("\r", "\\r");
+                data[sectionName]["Notes"] = notesEncoded;
+
                 data[sectionName]["Tags"] = account.Tags ?? string.Empty;
                 data[sectionName]["Order"] = account.Order.ToString();
                 
