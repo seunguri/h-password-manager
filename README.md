@@ -1,4 +1,4 @@
-# 계정 관리 프로그램 (Password Protector)
+# 계정 관리 프로그램 (Password Manager)
 
 윈도우 10 이상에서 사용할 수 있는 사내 계정 관리 프로그램입니다.
 
