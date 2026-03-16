@@ -48,12 +48,23 @@ namespace PasswordProtector
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            // 전역 예외 로깅 (디버깅용)
+            // 비-UI 스레드 예외 - 로깅 후 종료 
             AppDomain.CurrentDomain.UnhandledException += (s, args) =>
             {
                 var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "fatal.log");
                 var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
                 File.AppendAllText(logPath, $"[{timestamp}]\n{args.ExceptionObject}\n\n");
+            };
+
+            // UI 스레드 예외는 복구 가능
+            DispatcherUnhandledException += (s, args) =>
+            {
+                var logPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "error.log");
+                var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+                File.AppendAllText(logPath, $"[{timestamp}] UI Exception\n{args.Exception}\n\n");
+                
+                System.Windows.MessageBox.Show("오류가 발생했습니다. 로그를 확인해주세요.", "오류");
+                args.Handled = true; // 앱 계속 실행
             };
 
             const string mutexName = "PasswordProtector_SingleInstance_Mutex";
