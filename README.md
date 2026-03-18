@@ -1,6 +1,8 @@
 # 계정 관리 프로그램 (Password Manager)
 
-윈도우 10 이상에서 사용할 수 있는 사내 계정 관리 프로그램입니다.
+윈도우 10 이상에서 사용할 수 있는 사내 계정 관리 프로그램입니다.\
+<img width="1356" height="693" alt="캡처" src="https://github.com/user-attachments/assets/84c6f1c2-4c75-4598-8df4-4638f21bd8b6" />
+
 
 ## 기능
 
