@@ -48,13 +48,11 @@ namespace PasswordProtector.Services
 
         public static string UnprotectFromStorage(string? stored)
         {
-            plainText = string.Empty;
-
             if (string.IsNullOrEmpty(stored))
-                return false;
+                return string.Empty;
 
             if (!IsProtectedFormat(stored))
-                return false;
+                return stored;
 
             byte[]? protectedBytes = null;
             byte[]? plainBytes = null;
@@ -69,8 +67,7 @@ namespace PasswordProtector.Services
                     OptionalEntropy,
                     DataProtectionScope.CurrentUser);
 
-                plainText = Encoding.UTF8.GetString(plainBytes);
-                return true;
+                return Encoding.UTF8.GetString(plainBytes);
             }
             catch
             {

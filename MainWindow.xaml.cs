@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -7,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -81,6 +83,77 @@ namespace PasswordProtector
             var tagService = new TagService();
             var allTags = tagService.GetAllTags();
             TagFilterControl.ItemsSource = allTags;
+        }
+
+        private void RefreshDashboard_Click(object sender, RoutedEventArgs e)
+        {
+            RefreshDashboard();
+        }
+
+        /// <summary>
+        /// 디스크의 계정·태그 데이터를 다시 읽고, 현재 검색어·태그 필터는 유지합니다.
+        /// </summary>
+        private void RefreshDashboard()
+        {
+            _accounts = new ObservableCollection<Account>(_iniFileService.LoadAccounts());
+            LoadTagFilters();
+            PruneSelectedTagsToKnownFilters();
+            ApplyFilters();
+            FilePathText.Text = _iniFileService.FilePath;
+            Dispatcher.BeginInvoke(new Action(SyncTagFilterUiToSelection), DispatcherPriority.Loaded);
+        }
+
+        private void PruneSelectedTagsToKnownFilters()
+        {
+            if (TagFilterControl.ItemsSource is not IEnumerable src)
+                return;
+
+            var valid = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in src)
+            {
+                if (item is string s)
+                    valid.Add(s);
+            }
+
+            foreach (var t in _selectedTags.ToArray())
+            {
+                if (!valid.Contains(t))
+                    _selectedTags.Remove(t);
+            }
+        }
+
+        private void SyncTagFilterUiToSelection()
+        {
+            TagFilterControl.UpdateLayout();
+            var gen = TagFilterControl.ItemContainerGenerator;
+            for (var i = 0; i < TagFilterControl.Items.Count; i++)
+            {
+                if (gen.ContainerFromIndex(i) is not FrameworkElement root)
+                    continue;
+
+                var border = FindVisualChild<Border>(root);
+                if (border?.DataContext is not string tag)
+                    continue;
+
+                var selected = _selectedTags.Any(s => string.Equals(s, tag, StringComparison.OrdinalIgnoreCase));
+                border.Background = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString(selected ? "#007ACC" : "#2D2D30")!);
+            }
+        }
+
+        private static T? FindVisualChild<T>(DependencyObject parent) where T : DependencyObject
+        {
+            for (var c = 0; c < VisualTreeHelper.GetChildrenCount(parent); c++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, c);
+                if (child is T match)
+                    return match;
+                var nested = FindVisualChild<T>(child);
+                if (nested is not null)
+                    return nested;
+            }
+
+            return null;
         }
 
         private void ShowExpiryNotification()
@@ -206,6 +279,8 @@ namespace PasswordProtector
 
         private void CopyPassword_Click(object sender, RoutedEventArgs e)
         {
+            e.Handled = true;
+
             if (sender is Button button && button.Tag is Account account)
             {
                 var text = account.Password ?? string.Empty;
@@ -344,6 +419,11 @@ namespace PasswordProtector
             else if (Keyboard.Modifiers == ModifierKeys.Control && e.Key == Key.F)
             {
                 SearchTextBox.Focus();
+            }
+            else if (e.Key == Key.F5)
+            {
+                RefreshDashboard();
+                e.Handled = true;
             }
         }
 

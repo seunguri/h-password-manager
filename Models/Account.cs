@@ -110,8 +110,43 @@ namespace PasswordProtector.Models
             }
         }
         
-        /// <summary>목록에는 항상 마스킹만 표시합니다.</summary>
-        public string DisplayPassword => string.IsNullOrEmpty(Password) ? "" : "••••••••";
+        public bool HasNotesContent => !string.IsNullOrWhiteSpace(Notes);
+
+        /// <summary>목록 카드에 표시할 비고(내용이 있을 때만 영역 노출).</summary>
+        public string NotesCardBody => string.IsNullOrWhiteSpace(Notes) ? string.Empty : Notes.Trim();
+
+        /// <summary>태그 칩이 하나라도 있으면 true.</summary>
+        public bool HasTags
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Tags))
+                    return false;
+                foreach (var part in Tags.Split(new[] { ',', '|' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    if (!string.IsNullOrWhiteSpace(part.Trim()))
+                        return true;
+                }
+                return false;
+            }
+        }
+
+        /// <summary>카드 한 줄 요약(수정일·만료 D-day). 둘 다 없으면 빈 문자열 → 레이아웃에서 숨김.</summary>
+        public string CardScheduleSummary
+        {
+            get
+            {
+                var mod = LastPasswordChangeDate.HasValue ? $"수정 {ModifiedDateDisplay}" : "";
+                var exp = !string.IsNullOrEmpty(ExpiryDdayDisplay) ? ExpiryDdayDisplay : "";
+                if (string.IsNullOrEmpty(mod) && string.IsNullOrEmpty(exp))
+                    return string.Empty;
+                if (string.IsNullOrEmpty(mod))
+                    return exp;
+                if (string.IsNullOrEmpty(exp))
+                    return mod;
+                return $"{mod} · {exp}";
+            }
+        }
         
         public string ModifiedDateDisplay
         {
