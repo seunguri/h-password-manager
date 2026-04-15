@@ -17,8 +17,6 @@ namespace PasswordProtector.Windows
         private readonly TagService _tagService;
         private readonly IniFileService _iniFileService;
         private ObservableCollection<string> _tags;
-        private bool _isPasswordVisible = false;
-        private bool _isSyncingPassword = false;
         private DateTime? _selectedResetDate;
         private int? _selectedPeriodDays;
 
@@ -278,7 +276,7 @@ namespace PasswordProtector.Windows
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
-            Account.Password = _isPasswordVisible ? PasswordTextBox.Text : PasswordBox.Password;
+            Account.Password = PasswordBox.Password;
             Account.ResetPeriodDays = _selectedPeriodDays;
             Account.ResetDate = _selectedPeriodDays == -1 ? _selectedResetDate : null;
             Account.LastPasswordChangeDate = DateTime.Now;
@@ -297,44 +295,6 @@ namespace PasswordProtector.Windows
         {
             DialogResult = false;
             Close();
-        }
-
-        private void TogglePasswordButton_Click(object sender, RoutedEventArgs e)
-        {
-            _isPasswordVisible = !_isPasswordVisible;
-            
-            if (_isPasswordVisible)
-            {
-                // Show password as text
-                PasswordTextBox.Text = PasswordBox.Password;
-                PasswordBox.Visibility = Visibility.Collapsed;
-                PasswordTextBox.Visibility = Visibility.Visible;
-                TogglePasswordBtn.Content = "👁‍🗨";
-            }
-            else
-            {
-                // Show password as password box
-                PasswordBox.Password = PasswordTextBox.Text;
-                PasswordTextBox.Visibility = Visibility.Collapsed;
-                PasswordBox.Visibility = Visibility.Visible;
-                TogglePasswordBtn.Content = "👁";
-            }
-        }
-
-        private void PasswordBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (_isSyncingPassword) return;
-            _isSyncingPassword = true;
-            PasswordTextBox.Text = PasswordBox.Password;
-            _isSyncingPassword = false;
-        }
-
-        private void PasswordTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
-        {
-            if (_isSyncingPassword) return;
-            _isSyncingPassword = true;
-            PasswordBox.Password = PasswordTextBox.Text;
-            _isSyncingPassword = false;
         }
 
         private void SelectDateButton_Click(object sender, RoutedEventArgs e)

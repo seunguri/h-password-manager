@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Input;
 using Microsoft.Win32;
@@ -203,54 +204,32 @@ namespace PasswordProtector
             }
         }
 
-        private void TogglePassword_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is Button button && button.Tag is Account account)
-            {
-                account.IsPasswordVisible = !account.IsPasswordVisible;
-                // Force UI update by refreshing the collection
-                var index = _filteredAccounts.IndexOf(account);
-                if (index >= 0)
-                {
-                    var temp = _filteredAccounts[index];
-                    _filteredAccounts[index] = null;
-                    _filteredAccounts[index] = temp;
-                }
-            }
-        }
-
-        private void ShowAllPasswordsCheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            SetAllPasswordsVisibility(true);
-        }
-
-        private void ShowAllPasswordsCheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            SetAllPasswordsVisibility(false);
-        }
-
-        private void SetAllPasswordsVisibility(bool visible)
-        {
-            foreach (var account in _filteredAccounts)
-            {
-                account.IsPasswordVisible = visible;
-            }
-            
-            // Force UI update by refreshing the collection
-            var tempList = _filteredAccounts.ToList();
-            _filteredAccounts.Clear();
-            foreach (var account in tempList)
-            {
-                _filteredAccounts.Add(account);
-            }
-        }
-
         private void CopyPassword_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button button && button.Tag is Account account)
             {
-                Clipboard.SetText(account.Password);
-                // MessageBox.Show("비밀번호가 클립보드에 복사되었습니다.", "복사 완료", MessageBoxButton.OK, MessageBoxImage.Information);
+                var text = account.Password ?? string.Empty;
+                if (string.IsNullOrEmpty(text))
+                    return;
+
+                Clipboard.SetText(text);
+
+                var snapshot = text;
+                var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(45) };
+                timer.Tick += (_, _) =>
+                {
+                    timer.Stop();
+                    try
+                    {
+                        if (Clipboard.ContainsText() && Clipboard.GetText() == snapshot)
+                            Clipboard.Clear();
+                    }
+                    catch
+                    {
+                        // 클립보드 접근 실패 시 무시
+                    }
+                };
+                timer.Start();
             }
         }
 

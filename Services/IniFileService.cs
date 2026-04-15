@@ -53,7 +53,7 @@ namespace PasswordProtector.Services
                     {
                         ServiceName = data[section.SectionName]["ServiceName"] ?? string.Empty,
                         Username = data[section.SectionName]["Username"] ?? string.Empty,
-                        Password = data[section.SectionName]["Password"] ?? string.Empty,
+                        Password = LocalSecretProtector.UnprotectFromStorage(data[section.SectionName]["Password"] ?? string.Empty),
                         Notes = notesDecoded,
                         Tags = data[section.SectionName]["Tags"] ?? string.Empty,
                         Order = int.TryParse(data[section.SectionName]["Order"], out var order) ? order : 0
@@ -97,7 +97,7 @@ namespace PasswordProtector.Services
                 account.Order = i;
                 data[sectionName]["ServiceName"] = account.ServiceName ?? string.Empty;
                 data[sectionName]["Username"] = account.Username ?? string.Empty;
-                data[sectionName]["Password"] = account.Password ?? string.Empty;
+                data[sectionName]["Password"] = LocalSecretProtector.ProtectForStorage(account.Password ?? string.Empty);
                 
                 // Notes의 줄바꿈 문자 인코딩 (실제 줄바꿈 -> \\n)
                 var notesEncoded = (account.Notes ?? string.Empty).Replace("\r\n", "\\n").Replace("\n", "\\n").Replace("\r", "\\r");

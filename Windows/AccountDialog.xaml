@@ -85,62 +85,27 @@
                 
                 <!-- Password -->
                 <TextBlock Text="비밀번호" Foreground="#DCDCDC" FontSize="14" Margin="0,0,0,8"/>
-                <Grid Margin="0,0,0,15">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    
-                    <PasswordBox x:Name="PasswordBox" Grid.Column="0"
-                                 Background="#2D2D30" Foreground="#DCDCDC" 
-                                 BorderBrush="#3F3F46" BorderThickness="1"
-                                 Padding="10,8" FontSize="14"
-                                 PasswordChanged="PasswordBox_PasswordChanged">
-                        <PasswordBox.Style>
-                            <Style TargetType="PasswordBox">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="PasswordBox">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                    BorderBrush="{TemplateBinding BorderBrush}" 
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="4">
-                                                <ScrollViewer x:Name="PART_ContentHost" Padding="{TemplateBinding Padding}"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </PasswordBox.Style>
-                    </PasswordBox>
-                    
-                    <TextBox x:Name="PasswordTextBox" Grid.Column="0" Visibility="Collapsed"
+                <PasswordBox x:Name="PasswordBox" Margin="0,0,0,15"
                              Background="#2D2D30" Foreground="#DCDCDC" 
                              BorderBrush="#3F3F46" BorderThickness="1"
-                             Padding="10,8" FontSize="14"
-                             TextChanged="PasswordTextBox_TextChanged">
-                        <TextBox.Style>
-                            <Style TargetType="TextBox">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="TextBox">
-                                            <Border Background="{TemplateBinding Background}" 
-                                                    BorderBrush="{TemplateBinding BorderBrush}" 
-                                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                                    CornerRadius="4">
-                                                <ScrollViewer x:Name="PART_ContentHost" Padding="{TemplateBinding Padding}"/>
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Style>
-                        </TextBox.Style>
-                    </TextBox>
-                    
-                    <Button x:Name="TogglePasswordBtn" Grid.Column="1" Content="👁" Click="TogglePasswordButton_Click"
-                            Background="Transparent" Foreground="#DCDCDC" BorderThickness="0"
-                            FontSize="16" Padding="8" Margin="8,0,0,0" Cursor="Hand"/>
-                </Grid>
+                             Padding="10,8" FontSize="14">
+                    <PasswordBox.Style>
+                        <Style TargetType="PasswordBox">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="PasswordBox">
+                                        <Border Background="{TemplateBinding Background}" 
+                                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="4">
+                                            <ScrollViewer x:Name="PART_ContentHost" Padding="{TemplateBinding Padding}"/>
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </PasswordBox.Style>
+                </PasswordBox>
                 
                 <!-- Reset Period -->
                 <TextBlock Text="비밀번호 변경 주기" Foreground="#DCDCDC" FontSize="14" Margin="0,0,0,8"/>

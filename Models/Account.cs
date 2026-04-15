@@ -110,17 +110,8 @@ namespace PasswordProtector.Models
             }
         }
         
-        public bool IsPasswordVisible { get; set; } = false;
-        
-        public string DisplayPassword
-        {
-            get
-            {
-                if (IsPasswordVisible)
-                    return Password;
-                return string.IsNullOrEmpty(Password) ? "" : "••••••••";
-            }
-        }
+        /// <summary>목록에는 항상 마스킹만 표시합니다.</summary>
+        public string DisplayPassword => string.IsNullOrEmpty(Password) ? "" : "••••••••";
         
         public string ModifiedDateDisplay
         {
