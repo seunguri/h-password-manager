@@ -5,6 +5,9 @@ namespace PasswordProtector.Models
 {
     public class Account
     {
+        /// <summary>INI에 저장되는 고유 식별자. 서비스명·아이디가 같아도 항목을 구분합니다.</summary>
+        public Guid Id { get; set; }
+
         public string ServiceName { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;

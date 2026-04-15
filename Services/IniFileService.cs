@@ -42,6 +42,7 @@ namespace PasswordProtector.Services
             {
                 var data = _parser.ReadFile(_iniFilePath);
                 var accounts = new List<Account>();
+                var idsBackfilled = false;
 
                 foreach (var section in data.Sections)
                 {
@@ -49,12 +50,25 @@ namespace PasswordProtector.Services
                     var notesRaw = data[section.SectionName]["Notes"] ?? string.Empty;
                     var notesDecoded = notesRaw.Replace("\\n", "\n").Replace("\\r", "\r");
 
+                    var idRaw = data[section.SectionName]["Id"];
+                    Guid id;
+                    if (Guid.TryParse(idRaw, out var parsedId) && parsedId != Guid.Empty)
+                    {
+                        id = parsedId;
+                    }
+                    else
+                    {
+                        id = Guid.NewGuid();
+                        idsBackfilled = true;
+                    }
+
                     var account = new Account
                     {
-                        ServiceName = data[section.SectionName]["ServiceName"] ?? string.Empty,
+                        Id = id,
+                        ServiceName = AccountFieldLimits.Clamp(data[section.SectionName]["ServiceName"], AccountFieldLimits.ServiceNameMaxLength),
                         Username = data[section.SectionName]["Username"] ?? string.Empty,
                         Password = LocalSecretProtector.UnprotectFromStorage(data[section.SectionName]["Password"] ?? string.Empty),
-                        Notes = notesDecoded,
+                        Notes = AccountFieldLimits.Clamp(notesDecoded, AccountFieldLimits.NotesMaxLength),
                         Tags = data[section.SectionName]["Tags"] ?? string.Empty,
                         Order = int.TryParse(data[section.SectionName]["Order"], out var order) ? order : 0
                     };
@@ -77,7 +91,20 @@ namespace PasswordProtector.Services
                     accounts.Add(account);
                 }
 
-                return accounts.OrderBy(a => a.Order).ToList();
+                var ordered = accounts.OrderBy(a => a.Order).ToList();
+                if (idsBackfilled)
+                {
+                    try
+                    {
+                        SaveAccounts(ordered);
+                    }
+                    catch
+                    {
+                        // Id 백필 저장 실패 시에도 목록은 반환 (다음 저장 시 재시도)
+                    }
+                }
+
+                return ordered;
             }
             catch
             {
@@ -95,7 +122,12 @@ namespace PasswordProtector.Services
                 var sectionName = $"Account_{i}";
                 
                 account.Order = i;
-                data[sectionName]["ServiceName"] = account.ServiceName ?? string.Empty;
+                if (account.Id == Guid.Empty)
+                    account.Id = Guid.NewGuid();
+                account.ServiceName = AccountFieldLimits.Clamp(account.ServiceName, AccountFieldLimits.ServiceNameMaxLength);
+                account.Notes = AccountFieldLimits.Clamp(account.Notes, AccountFieldLimits.NotesMaxLength);
+                data[sectionName]["Id"] = account.Id.ToString("D");
+                data[sectionName]["ServiceName"] = account.ServiceName;
                 data[sectionName]["Username"] = account.Username ?? string.Empty;
                 data[sectionName]["Password"] = LocalSecretProtector.ProtectForStorage(account.Password ?? string.Empty);
                 

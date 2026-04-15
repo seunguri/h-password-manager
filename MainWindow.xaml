@@ -424,6 +424,12 @@
                                    TextDecorations="Underline"
                                    ToolTip="클릭하면 파일 위치를 엽니다"/>
                     </Border>
+                    <TextBlock Margin="0,8,0,0"
+                               FontSize="11"
+                               Foreground="#808080"
+                               TextWrapping="Wrap"
+                               LineHeight="16"
+                               Text="비밀번호는 위 경로의 파일에 평문이 아닌 암호화된 상태로 저장됩니다."/>
                 </StackPanel>
                 
                 <!-- 설정 -->

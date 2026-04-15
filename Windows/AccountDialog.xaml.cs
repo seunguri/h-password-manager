@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Documents;
 using System.Windows.Media;
 using PasswordProtector.Models;
 using PasswordProtector.Services;
@@ -23,6 +24,14 @@ namespace PasswordProtector.Windows
         public AccountDialog(Account? account = null)
         {
             InitializeComponent();
+
+            var labelFg = new SolidColorBrush(Color.FromRgb(0xDC, 0xDC, 0xDC));
+            var hintFg = new SolidColorBrush(Color.FromRgb(0x80, 0x80, 0x80));
+            ServiceNameCaption.Inlines.Add(new Run("서비스명 ") { Foreground = labelFg });
+            ServiceNameCaption.Inlines.Add(new Run($"(최대 {AccountFieldLimits.ServiceNameMaxLength}자)") { Foreground = hintFg });
+            NotesCaption.Inlines.Add(new Run("비고 ") { Foreground = labelFg });
+            NotesCaption.Inlines.Add(new Run($"(최대 {AccountFieldLimits.NotesMaxLength}자)") { Foreground = hintFg });
+
             _tagService = new TagService();
             _iniFileService = new IniFileService();
             _tags = new ObservableCollection<string>();
@@ -35,6 +44,7 @@ namespace PasswordProtector.Windows
                     SaveButton.Content = "수정";
                 Account = new Account
                 {
+                    Id = account.Id,
                     ServiceName = account.ServiceName,
                     Username = account.Username,
                     Password = account.Password,
@@ -74,7 +84,7 @@ namespace PasswordProtector.Windows
                 this.Title = "계정 추가";
                 if (SaveButton != null)
                     SaveButton.Content = "저장";
-                Account = new Account();
+                Account = new Account { Id = Guid.NewGuid() };
             }
             
             DataContext = Account;
@@ -276,6 +286,8 @@ namespace PasswordProtector.Windows
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
+            Account.ServiceName = AccountFieldLimits.Clamp(Account.ServiceName?.Trim(), AccountFieldLimits.ServiceNameMaxLength);
+            Account.Notes = AccountFieldLimits.Clamp(Account.Notes, AccountFieldLimits.NotesMaxLength);
             Account.Password = PasswordBox.Password;
             Account.ResetPeriodDays = _selectedPeriodDays;
             Account.ResetDate = _selectedPeriodDays == -1 ? _selectedResetDate : null;

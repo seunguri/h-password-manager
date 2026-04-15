@@ -252,8 +252,8 @@ namespace PasswordProtector
         {
             if (sender is Border border && border.DataContext is Account account)
             {
-                var originalServiceName = account.ServiceName;
-                var originalUsername = account.Username;
+                var accountId = account.Id;
+                var accountOrder = account.Order;
                 
                 var dialog = new AccountDialog(account);
                 if (dialog.ShowDialog() == true)
@@ -261,9 +261,10 @@ namespace PasswordProtector
                     // 파일에서 최신 데이터 로드 (다이얼로그에서 태그 삭제 등의 변경사항 반영)
                     var freshAccounts = _iniFileService.LoadAccounts();
                     
-                    // 수정된 계정 찾아서 업데이트
-                    var index = freshAccounts.FindIndex(a => 
-                        a.ServiceName == originalServiceName && a.Username == originalUsername);
+                    // 수정된 계정 찾아서 업데이트 (Id 우선, 예전 데이터·동기화 이슈 시 Order로 폴백)
+                    var index = freshAccounts.FindIndex(a => a.Id == accountId);
+                    if (index < 0)
+                        index = freshAccounts.FindIndex(a => a.Order == accountOrder);
                     
                     if (index >= 0)
                     {
@@ -324,8 +325,8 @@ namespace PasswordProtector
                 {
                     // 파일에서 최신 데이터 로드 후 계정 삭제
                     var freshAccounts = _iniFileService.LoadAccounts();
-                    var accountToRemove = freshAccounts.FirstOrDefault(a => 
-                        a.ServiceName == account.ServiceName && a.Username == account.Username);
+                    var accountToRemove = freshAccounts.FirstOrDefault(a => a.Id == account.Id)
+                        ?? freshAccounts.FirstOrDefault(a => a.Order == account.Order);
                     
                     if (accountToRemove != null)
                     {
