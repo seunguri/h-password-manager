@@ -14,33 +14,75 @@ namespace PasswordProtector.Services
 
         public static string ProtectForStorage(string? plainText)
         {
-            if (string.IsNullOrEmpty(plainText))
+            if (plainText is null)
                 return string.Empty;
+
+            if (plainText.Length == 0)
+                return string.Empty;
+
             if (IsProtectedFormat(plainText))
                 return plainText;
 
-            var bytes = Encoding.UTF8.GetBytes(plainText);
-            var protectedBytes = ProtectedData.Protect(bytes, OptionalEntropy, DataProtectionScope.CurrentUser);
-            return Prefix + Convert.ToBase64String(protectedBytes);
+            byte[]? plainBytes = null;
+            byte[]? protectedBytes = null;
+
+            try
+            {
+                plainBytes = Encoding.UTF8.GetBytes(plainText);
+                protectedBytes = ProtectedData.Protect(
+                    plainBytes,
+                    OptionalEntropy,
+                    DataProtectionScope.CurrentUser);
+
+                return Prefix + Convert.ToBase64String(protectedBytes);
+            }
+            finally
+            {
+                if (plainBytes is not null)
+                    Array.Clear(plainBytes, 0, plainBytes.Length);
+
+                if (protectedBytes is not null)
+                    Array.Clear(protectedBytes, 0, protectedBytes.Length);
+            }
         }
 
         public static string UnprotectFromStorage(string? stored)
         {
-            if (string.IsNullOrEmpty(stored))
-                return string.Empty;
-            if (!IsProtectedFormat(stored))
-                return stored;
+            plainText = string.Empty;
 
-            var b64 = stored.Substring(Prefix.Length);
+            if (string.IsNullOrEmpty(stored))
+                return false;
+
+            if (!IsProtectedFormat(stored))
+                return false;
+
+            byte[]? protectedBytes = null;
+            byte[]? plainBytes = null;
+
             try
             {
-                var protectedBytes = Convert.FromBase64String(b64);
-                var plain = ProtectedData.Unprotect(protectedBytes, OptionalEntropy, DataProtectionScope.CurrentUser);
-                return Encoding.UTF8.GetString(plain);
+                var b64 = stored.Substring(Prefix.Length);
+                protectedBytes = Convert.FromBase64String(b64);
+
+                plainBytes = ProtectedData.Unprotect(
+                    protectedBytes,
+                    OptionalEntropy,
+                    DataProtectionScope.CurrentUser);
+
+                plainText = Encoding.UTF8.GetString(plainBytes);
+                return true;
             }
             catch
             {
                 return string.Empty;
+            }
+            finally
+            {
+                if (protectedBytes is not null)
+                    Array.Clear(protectedBytes, 0, protectedBytes.Length);
+
+                if (plainBytes is not null)
+                    Array.Clear(plainBytes, 0, plainBytes.Length);
             }
         }
 
