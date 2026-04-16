@@ -46,6 +46,9 @@ namespace PasswordProtector.Services
 
                 foreach (var section in data.Sections)
                 {
+                    if (!section.SectionName.StartsWith("Account_", StringComparison.Ordinal))
+                        continue;
+
                     // Notes의 줄바꿈 문자 디코딩 (\\n -> 실제 줄바꿈)
                     var notesRaw = data[section.SectionName]["Notes"] ?? string.Empty;
                     var notesDecoded = notesRaw.Replace("\\n", "\n").Replace("\\r", "\r");
@@ -155,6 +158,55 @@ namespace PasswordProtector.Services
             }
 
             _parser.WriteFile(_iniFilePath, data);
+        }
+
+        /// <summary>
+        /// 비밀번호를 DPAPI 없이 평문으로 기록한 INI를 저장합니다. [Meta]에 원본·보낸 파일 경로가 포함됩니다.
+        /// 이 파일을 그대로 앱 데이터 파일로 쓰면 안 됩니다(평문 저장).
+        /// </summary>
+        public static void WritePlainPasswordExport(string destinationPath, List<Account> accounts, string sourceAccountsIniPath)
+        {
+            var parser = new FileIniDataParser();
+            var data = new IniData();
+
+            data["Meta"]["SourceAccountsFile"] = sourceAccountsIniPath ?? string.Empty;
+            data["Meta"]["ExportedIniFile"] = Path.GetFullPath(destinationPath);
+            data["Meta"]["ExportedAt"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            data["Meta"]["Warning"] = "이 파일의 비밀번호는 평문입니다. 유출에 주의하세요.";
+
+            for (var i = 0; i < accounts.Count; i++)
+            {
+                var account = accounts[i];
+                var sectionName = $"Account_{i}";
+
+                var serviceName = AccountFieldLimits.Clamp(account.ServiceName, AccountFieldLimits.ServiceNameMaxLength);
+                var notesClamped = AccountFieldLimits.Clamp(account.Notes, AccountFieldLimits.NotesMaxLength);
+
+                data[sectionName]["Id"] = account.Id.ToString("D");
+                data[sectionName]["ServiceName"] = serviceName;
+                data[sectionName]["Username"] = account.Username ?? string.Empty;
+                data[sectionName]["Password"] = account.Password ?? string.Empty;
+
+                var notesEncoded = (notesClamped ?? string.Empty).Replace("\r\n", "\\n").Replace("\n", "\\n").Replace("\r", "\\r");
+                data[sectionName]["Notes"] = notesEncoded;
+                data[sectionName]["Tags"] = account.Tags ?? string.Empty;
+                data[sectionName]["Order"] = i.ToString();
+
+                if (account.LastPasswordChangeDate.HasValue)
+                    data[sectionName]["LastPasswordChangeDate"] = account.LastPasswordChangeDate.Value.ToString("yyyy-MM-dd");
+
+                if (account.ResetDate.HasValue)
+                    data[sectionName]["ResetDate"] = account.ResetDate.Value.ToString("yyyy-MM-dd");
+
+                if (account.ResetPeriodDays.HasValue)
+                    data[sectionName]["ResetPeriodDays"] = account.ResetPeriodDays.Value.ToString();
+            }
+
+            var dir = Path.GetDirectoryName(destinationPath);
+            if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            parser.WriteFile(destinationPath, data);
         }
     }
 }

@@ -436,6 +436,51 @@ namespace PasswordProtector
             this.Hide();
         }
 
+        private void ExportDecryptedIni_Click(object sender, RoutedEventArgs e)
+        {
+            var confirm = MessageBox.Show(
+                "비밀번호가 평문으로 저장된 INI 파일을 만듭니다.\n\n" +
+                "다른 사람이 읽을 수 있는 위치에 두지 마세요. 계속할까요?",
+                "복호화해서보내기",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (confirm != MessageBoxResult.Yes)
+                return;
+
+            var accounts = _iniFileService.LoadAccounts();
+            if (accounts.Count == 0)
+            {
+                MessageBox.Show("보낼 계정이 없습니다.", "복호화해서보내기", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Filter = "INI 파일 (*.ini)|*.ini|모든 파일 (*.*)|*.*",
+                DefaultExt = ".ini",
+                FileName = "계정_평문보내기.ini",
+                Title = "복호화 INI 저장 위치"
+            };
+
+            if (dialog.ShowDialog() != true)
+                return;
+
+            try
+            {
+                IniFileService.WritePlainPasswordExport(dialog.FileName, accounts, _iniFileService.FilePath);
+                MessageBox.Show(
+                    $"저장했습니다.\n\n{dialog.FileName}",
+                    "복호화해서보내기",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"저장에 실패했습니다.\n{ex.Message}", "오류", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
         private void OpenFilePath_Click(object sender, MouseButtonEventArgs e)
         {
             try
