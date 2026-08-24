@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
@@ -82,13 +83,10 @@ namespace PasswordProtector
 
             base.OnStartup(e);
 
-            // Create system tray icon
-            var iconPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "app.ico");
+            // Create system tray icon (단일 exe 배포를 위해 임베디드 리소스에서 로드)
             _notifyIcon = new NotifyIcon
             {
-                Icon = System.IO.File.Exists(iconPath) 
-                    ? new System.Drawing.Icon(iconPath) 
-                    : System.Drawing.SystemIcons.Application,
+                Icon = LoadTrayIcon(),
                 Text = "계정 관리 (Ctrl+Shift+P)",
                 Visible = true
             };
@@ -127,6 +125,33 @@ namespace PasswordProtector
         private static void ShowStartupToast()
         {
             ToastWindow.ShowToast();
+        }
+
+        /// <summary>
+        /// 트레이 아이콘을 실행 파일에 포함된 임베디드 리소스(app.ico)에서 로드합니다.
+        /// 단일 exe 배포 시에도 외부 파일 없이 동작합니다.
+        /// </summary>
+        private static System.Drawing.Icon LoadTrayIcon()
+        {
+            try
+            {
+                var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+                var resourceName = assembly.GetManifestResourceNames()
+                    .FirstOrDefault(n => n.EndsWith("app.ico", StringComparison.OrdinalIgnoreCase));
+
+                if (resourceName != null)
+                {
+                    using var stream = assembly.GetManifestResourceStream(resourceName);
+                    if (stream != null)
+                        return new System.Drawing.Icon(stream);
+                }
+            }
+            catch
+            {
+                // 로드 실패 시 기본 아이콘으로 폴백
+            }
+
+            return System.Drawing.SystemIcons.Application;
         }
 
         private void ShowMainWindow()

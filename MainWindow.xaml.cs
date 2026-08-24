@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -24,6 +25,8 @@ namespace PasswordProtector
         private readonly IniFileService _iniFileService;
         private ObservableCollection<Account> _accounts;
         private ObservableCollection<Account> _filteredAccounts;
+        // 카드 목록에 실제 계정과 "새 계정 추가" 카드를 함께 표시하기 위한 컬렉션
+        private readonly ObservableCollection<object> _displayItems = new ObservableCollection<object>();
         private HashSet<string> _selectedTags = new HashSet<string>();
 
         public MainWindow()
@@ -73,8 +76,20 @@ namespace PasswordProtector
             var accounts = _iniFileService.LoadAccounts();
             _accounts = new ObservableCollection<Account>(accounts);
             _filteredAccounts = new ObservableCollection<Account>(_accounts);
-            AccountCardsControl.ItemsSource = _filteredAccounts;
+            AccountCardsControl.ItemsSource = _displayItems;
+            RebuildDisplayItems();
             UpdateAccountCount();
+        }
+
+        /// <summary>
+        /// 필터링된 계정 카드 뒤에 "새 계정 추가" 카드를 붙여 표시 컬렉션을 다시 구성합니다.
+        /// </summary>
+        private void RebuildDisplayItems()
+        {
+            _displayItems.Clear();
+            foreach (var account in _filteredAccounts)
+                _displayItems.Add(account);
+            _displayItems.Add(AddAccountPlaceholder.Instance);
         }
 
         private void LoadTagFilters()
@@ -124,6 +139,10 @@ namespace PasswordProtector
 
         private void SyncTagFilterUiToSelection()
         {
+            // "전체" 칩은 선택된 태그가 없을 때 활성(파란색)으로 표시
+            AllFilterChip.Background = new SolidColorBrush(
+                (Color)ColorConverter.ConvertFromString(_selectedTags.Count == 0 ? "#007ACC" : "#2D2D30")!);
+
             TagFilterControl.UpdateLayout();
             var gen = TagFilterControl.ItemContainerGenerator;
             for (var i = 0; i < TagFilterControl.Items.Count; i++)
@@ -136,8 +155,10 @@ namespace PasswordProtector
                     continue;
 
                 var selected = _selectedTags.Any(s => string.Equals(s, tag, StringComparison.OrdinalIgnoreCase));
-                border.Background = new SolidColorBrush(
-                    (Color)ColorConverter.ConvertFromString(selected ? "#007ACC" : "#2D2D30")!);
+                // 태그 자체의 색은 바꾸지 않고, 선택 여부만 밝은 외곽선으로 표시합니다.
+                border.BorderBrush = new SolidColorBrush(
+                    (Color)ColorConverter.ConvertFromString(selected ? "#E2E8F0" : "Transparent")!);
+                border.BorderThickness = new Thickness(selected ? 1.5 : 1);
             }
         }
 
@@ -235,6 +256,17 @@ namespace PasswordProtector
 
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
+            AddNewAccount();
+        }
+
+        private void AddCard_Click(object sender, MouseButtonEventArgs e)
+        {
+            e.Handled = true;
+            AddNewAccount();
+        }
+
+        private void AddNewAccount()
+        {
             var dialog = new AccountDialog();
             if (dialog.ShowDialog() == true)
             {
@@ -248,115 +280,166 @@ namespace PasswordProtector
             LoadTagFilters();
         }
 
-        private void AccountCard_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void PasswordField_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (sender is Border border && border.DataContext is Account account)
+            if (sender is Border border && border.Tag is Account account)
             {
-                var accountId = account.Id;
-                var accountOrder = account.Order;
-                
-                var dialog = new AccountDialog(account);
-                if (dialog.ShowDialog() == true)
+                e.Handled = true;
+                CopyPasswordToClipboard(account);
+            }
+        }
+
+        /// <summary>
+        /// 카드의 주요 CTA에서 비밀번호를 클립보드로 복사합니다.
+        /// </summary>
+        private void CopyPasswordButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button button && button.Tag is Account account)
+            {
+                e.Handled = true;
+                CopyPasswordToClipboard(account);
+            }
+        }
+
+        private void TogglePasswordVisibility_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true; // 비밀번호 복사 이벤트 전파 방지
+            if (sender is Button button && button.Tag is Account account)
+            {
+                account.IsPasswordVisible = !account.IsPasswordVisible;
+            }
+        }
+
+        private void CardMenu_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            if (sender is Button button && button.Tag is Account account)
+            {
+                OpenAccountDialog(account);
+            }
+        }
+
+        /// <summary>
+        /// 상세(수정) 다이얼로그를 열고, 결과에 따라 수정 또는 삭제를 반영합니다.
+        /// </summary>
+        private void OpenAccountDialog(Account account)
+        {
+            var accountId = account.Id;
+            var accountOrder = account.Order;
+
+            var dialog = new AccountDialog(account);
+            if (dialog.ShowDialog() == true)
+            {
+                // 파일에서 최신 데이터 로드 (다이얼로그에서 태그 삭제 등의 변경사항 반영)
+                var freshAccounts = _iniFileService.LoadAccounts();
+
+                if (dialog.DeleteRequested)
                 {
-                    // 파일에서 최신 데이터 로드 (다이얼로그에서 태그 삭제 등의 변경사항 반영)
-                    var freshAccounts = _iniFileService.LoadAccounts();
-                    
+                    // 상세창 하단 삭제 버튼으로 삭제 요청
+                    var accountToRemove = freshAccounts.FirstOrDefault(a => a.Id == accountId)
+                        ?? freshAccounts.FirstOrDefault(a => a.Order == accountOrder);
+
+                    if (accountToRemove != null)
+                    {
+                        freshAccounts.Remove(accountToRemove);
+                        _iniFileService.SaveAccounts(freshAccounts);
+                    }
+                }
+                else
+                {
                     // 수정된 계정 찾아서 업데이트 (Id 우선, 예전 데이터·동기화 이슈 시 Order로 폴백)
                     var index = freshAccounts.FindIndex(a => a.Id == accountId);
                     if (index < 0)
                         index = freshAccounts.FindIndex(a => a.Order == accountOrder);
-                    
+
                     if (index >= 0)
                     {
                         freshAccounts[index] = dialog.Account;
                         _iniFileService.SaveAccounts(freshAccounts);
                     }
                 }
-                // 변경사항 반영을 위해 다시 로드
-                LoadAccounts();
-                LoadTagFilters();
             }
+            // 변경사항 반영을 위해 다시 로드
+            LoadAccounts();
+            LoadTagFilters();
         }
 
-        private void CopyPassword_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// 비밀번호를 클립보드에 복사합니다. 비밀번호가 없으면 안내 알림을 표시합니다.
+        /// </summary>
+        private void CopyPasswordToClipboard(Account account)
         {
-            e.Handled = true;
-
-            if (sender is Button button && button.Tag is Account account)
+            var text = account.Password ?? string.Empty;
+            if (string.IsNullOrEmpty(text))
             {
-                var text = account.Password ?? string.Empty;
-                if (string.IsNullOrEmpty(text))
-                    return;
+                ShowCopyToast("복사할 비밀번호가 없습니다", isWarning: true);
+                return;
+            }
 
+            try
+            {
                 Clipboard.SetText(text);
-
-                var snapshot = text;
-                var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(45) };
-                timer.Tick += (_, _) =>
-                {
-                    timer.Stop();
-                    try
-                    {
-                        if (Clipboard.ContainsText() && Clipboard.GetText() == snapshot)
-                            Clipboard.Clear();
-                    }
-                    catch
-                    {
-                        // 클립보드 접근 실패 시 무시
-                    }
-                };
-                timer.Start();
+                ShowCopyToast($"'{account.ServiceName}' 비밀번호 복사됨 · Ctrl+V로 붙여넣기");
+            }
+            catch
+            {
+                ShowCopyToast("복사에 실패했습니다. 다시 시도하세요");
             }
         }
 
-        private void DeleteAccount_Click(object sender, RoutedEventArgs e)
+        private DispatcherTimer? _copyToastTimer;
+
+        private static readonly SolidColorBrush ToastInfoBrush =
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#007ACC"));
+        private static readonly SolidColorBrush ToastWarningBrush =
+            new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E5A800"));
+
+        /// <summary>
+        /// 복사 알림 오버레이를 잠시 표시한 뒤 페이드아웃합니다.
+        /// isWarning이 true면 노란색(경고)으로 표시합니다.
+        /// </summary>
+        private void ShowCopyToast(string message, bool isWarning = false)
         {
-            e.Handled = true; // Prevent card click event from firing
-            
-            if (sender is Button button && button.Tag is Account account)
+            CopyToastText.Text = message;
+            CopyToastBorder.Background = isWarning ? ToastWarningBrush : ToastInfoBrush;
+            CopyToastBorder.Visibility = Visibility.Visible;
+
+            var fadeIn = new DoubleAnimation(1, TimeSpan.FromMilliseconds(150));
+            CopyToastBorder.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+
+            _copyToastTimer?.Stop();
+            _copyToastTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(1500) };
+            _copyToastTimer.Tick += (_, _) =>
             {
-                var result = MessageBox.Show(
-                    $"'{account.ServiceName}' 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",
-                    "계정 삭제 확인",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Warning);
-                
-                if (result == MessageBoxResult.Yes)
-                {
-                    // 파일에서 최신 데이터 로드 후 계정 삭제
-                    var freshAccounts = _iniFileService.LoadAccounts();
-                    var accountToRemove = freshAccounts.FirstOrDefault(a => a.Id == account.Id)
-                        ?? freshAccounts.FirstOrDefault(a => a.Order == account.Order);
-                    
-                    if (accountToRemove != null)
-                    {
-                        freshAccounts.Remove(accountToRemove);
-                        _iniFileService.SaveAccounts(freshAccounts);
-                    }
-                    
-                    // 변경사항 반영을 위해 다시 로드
-                    LoadAccounts();
-                    LoadTagFilters();
-                }
-            }
+                _copyToastTimer!.Stop();
+                var fadeOut = new DoubleAnimation(0, TimeSpan.FromMilliseconds(250));
+                fadeOut.Completed += (_, _) => CopyToastBorder.Visibility = Visibility.Collapsed;
+                CopyToastBorder.BeginAnimation(UIElement.OpacityProperty, fadeOut);
+            };
+            _copyToastTimer.Start();
         }
 
         private void TagFilter_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is Border border && border.DataContext is string tag)
             {
-                if (_selectedTags.Contains(tag))
-                {
-                    _selectedTags.Remove(tag);
-                    border.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#2D2D30"));
-                }
-                else
-                {
+                if (!_selectedTags.Remove(tag))
                     _selectedTags.Add(tag);
-                    border.Background = new System.Windows.Media.SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#007ACC"));
-                }
+
                 ApplyFilters();
+                SyncTagFilterUiToSelection();
             }
+        }
+
+        /// <summary>"전체" 칩 클릭 시 모든 태그 필터를 해제합니다.</summary>
+        private void AllFilter_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (_selectedTags.Count == 0)
+                return;
+
+            _selectedTags.Clear();
+            ApplyFilters();
+            SyncTagFilterUiToSelection();
         }
 
         private void SearchTextBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -403,8 +486,29 @@ namespace PasswordProtector
             {
                 _filteredAccounts.Add(account);
             }
-            
+
+            RebuildDisplayItems();
             UpdateAccountCount();
+        }
+
+        private void Window_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            // 검색창 등 자식 컨트롤이 포커스를 가진 상태에서도 동작하도록 터널링 단계에서 처리.
+            // 한글 IME가 켜져 있으면 e.Key가 Key.ImeProcessed로 들어오므로 실제 키를 복원한다.
+            var key = e.Key;
+            if (key == Key.ImeProcessed)
+                key = e.ImeProcessedKey;
+            else if (key == Key.System)
+                key = e.SystemKey;
+
+            if (Keyboard.Modifiers == ModifierKeys.Control && key == Key.C)
+            {
+                // 맨 앞(좌측 상단) 카드의 비밀번호 바로 복사
+                var firstAccount = _filteredAccounts.FirstOrDefault();
+                if (firstAccount != null)
+                    CopyPasswordToClipboard(firstAccount);
+                e.Handled = true;
+            }
         }
 
         private void Window_KeyDown(object sender, KeyEventArgs e)

@@ -5,6 +5,7 @@
     <!-- Converters -->
     <converters:TagsToListConverter x:Key="TagsToListConverter"/>
     <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
+    <converters:TagColorConverter x:Key="TagColorConverter"/>
     
     <!-- Colors - Dark Theme -->
     <SolidColorBrush x:Key="BackgroundBrush" Color="#1E1E1E"/>

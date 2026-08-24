@@ -15,6 +15,10 @@ namespace PasswordProtector.Windows
     public partial class AccountDialog : Window
     {
         public Account Account { get; private set; }
+
+        /// <summary>상세창 하단 삭제 버튼으로 삭제가 요청되었는지 여부.</summary>
+        public bool DeleteRequested { get; private set; }
+
         private readonly TagService _tagService;
         private readonly IniFileService _iniFileService;
         private ObservableCollection<string> _tags;
@@ -29,7 +33,7 @@ namespace PasswordProtector.Windows
             var hintFg = new SolidColorBrush(Color.FromRgb(0x80, 0x80, 0x80));
             ServiceNameCaption.Inlines.Add(new Run("서비스명 ") { Foreground = labelFg });
             ServiceNameCaption.Inlines.Add(new Run($"(최대 {AccountFieldLimits.ServiceNameMaxLength}자)") { Foreground = hintFg });
-            NotesCaption.Inlines.Add(new Run("비고 ") { Foreground = labelFg });
+            NotesCaption.Inlines.Add(new Run("메모 ") { Foreground = labelFg });
             NotesCaption.Inlines.Add(new Run($"(최대 {AccountFieldLimits.NotesMaxLength}자)") { Foreground = hintFg });
 
             _tagService = new TagService();
@@ -40,8 +44,8 @@ namespace PasswordProtector.Windows
             if (account != null)
             {
                 this.Title = "계정 수정";
-                if (SaveButton != null)
-                    SaveButton.Content = "수정";
+                if (DeleteButton != null)
+                    DeleteButton.Visibility = Visibility.Visible;
                 Account = new Account
                 {
                     Id = account.Id,
@@ -84,6 +88,8 @@ namespace PasswordProtector.Windows
                 this.Title = "계정 추가";
                 if (SaveButton != null)
                     SaveButton.Content = "저장";
+                // 추가 모드에서는 삭제 버튼이 없으므로 해당 열이 공간을 차지하지 않도록 접음
+                DeleteColumn.Width = new GridLength(0);
                 Account = new Account { Id = Guid.NewGuid() };
             }
             
@@ -233,6 +239,39 @@ namespace PasswordProtector.Windows
             }
         }
 
+        private bool _isPasswordVisible;
+
+        private void TogglePasswordVisibility_Click(object sender, RoutedEventArgs e)
+        {
+            _isPasswordVisible = !_isPasswordVisible;
+
+            if (_isPasswordVisible)
+            {
+                // 마스킹 → 평문
+                PasswordPlainBox.Text = PasswordBox.Password;
+                PasswordPlainBox.Visibility = Visibility.Visible;
+                PasswordBox.Visibility = Visibility.Collapsed;
+                TogglePasswordButton.Content = "🙈";
+                PasswordPlainBox.CaretIndex = PasswordPlainBox.Text.Length;
+                PasswordPlainBox.Focus();
+            }
+            else
+            {
+                // 평문 → 마스킹
+                PasswordBox.Password = PasswordPlainBox.Text;
+                PasswordBox.Visibility = Visibility.Visible;
+                PasswordPlainBox.Visibility = Visibility.Collapsed;
+                TogglePasswordButton.Content = "👁";
+                PasswordBox.Focus();
+            }
+        }
+
+        /// <summary>현재 보이는 입력 컨트롤 기준으로 비밀번호 값을 반환합니다.</summary>
+        private string GetCurrentPassword()
+        {
+            return _isPasswordVisible ? PasswordPlainBox.Text : PasswordBox.Password;
+        }
+
         private void TagTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter)
@@ -288,7 +327,7 @@ namespace PasswordProtector.Windows
         {
             Account.ServiceName = AccountFieldLimits.Clamp(Account.ServiceName?.Trim(), AccountFieldLimits.ServiceNameMaxLength);
             Account.Notes = AccountFieldLimits.Clamp(Account.Notes, AccountFieldLimits.NotesMaxLength);
-            Account.Password = PasswordBox.Password;
+            Account.Password = GetCurrentPassword();
             Account.ResetPeriodDays = _selectedPeriodDays;
             Account.ResetDate = _selectedPeriodDays == -1 ? _selectedResetDate : null;
             Account.LastPasswordChangeDate = DateTime.Now;
@@ -301,6 +340,22 @@ namespace PasswordProtector.Windows
         {
             DialogResult = false;
             Close();
+        }
+
+        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        {
+            var result = MessageBox.Show(
+                $"'{Account.ServiceName}' 계정을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.",
+                "계정 삭제 확인",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result == MessageBoxResult.Yes)
+            {
+                DeleteRequested = true;
+                DialogResult = true;
+                Close();
+            }
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)

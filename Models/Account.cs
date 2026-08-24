@@ -1,16 +1,50 @@
 using System;
+using System.ComponentModel;
 using System.Windows.Media;
 
 namespace PasswordProtector.Models
 {
-    public class Account
+    public class Account : INotifyPropertyChanged
     {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        private void OnPropertyChanged(string name) =>
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         /// <summary>INI에 저장되는 고유 식별자. 서비스명·아이디가 같아도 항목을 구분합니다.</summary>
         public Guid Id { get; set; }
 
         public string ServiceName { get; set; } = string.Empty;
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+
+        /// <summary>비밀번호가 설정되어 있는지 여부.</summary>
+        public bool HasPassword => !string.IsNullOrEmpty(Password);
+
+        private bool _isPasswordVisible;
+        /// <summary>대시보드 카드에서 비밀번호를 임시로 표시할지 여부(눈 버튼 토글).</summary>
+        public bool IsPasswordVisible
+        {
+            get => _isPasswordVisible;
+            set
+            {
+                if (_isPasswordVisible == value)
+                    return;
+                _isPasswordVisible = value;
+                OnPropertyChanged(nameof(IsPasswordVisible));
+                OnPropertyChanged(nameof(PasswordDisplay));
+            }
+        }
+
+        /// <summary>카드에 표시할 비밀번호 문자열(기본 마스킹, 눈 버튼으로 임시 표시).</summary>
+        public string PasswordDisplay
+        {
+            get
+            {
+                if (!HasPassword)
+                    return "";
+                return IsPasswordVisible ? Password : "••••••••••••";
+            }
+        }
         public DateTime? LastPasswordChangeDate { get; set; }
         public DateTime? ResetDate { get; set; }
         public int? ResetPeriodDays { get; set; } // null=미설정, 30/60/90=기간, -1=직접입력
@@ -107,7 +141,7 @@ namespace PasswordProtector.Models
                 if (days < 0)
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F48771")); // Red - 만료됨
                 else if (days <= 7)
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#CE9178")); // Orange - 곧 만료
+                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E5C07B")); // Amber - 곧 만료
                 else
                     return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4EC9B0")); // Green - 정상
             }
