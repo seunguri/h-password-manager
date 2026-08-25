@@ -44,6 +44,7 @@ packages/
 project.lock.json
 project.fragment.lock.json
 artifacts/
+dist/
 
 # Publish output (bin 아래에 생성되므로 bin/으로 충분하지만 명시)
 # dotnet publish 결과물

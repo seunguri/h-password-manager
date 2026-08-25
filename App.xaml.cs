@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Forms;
-using Microsoft.Toolkit.Uwp.Notifications;
 using PasswordProtector.Services;
 using Application = System.Windows.Application;
 
