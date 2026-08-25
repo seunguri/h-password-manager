@@ -80,6 +80,7 @@ namespace PasswordProtector
                 return;
             }
 
+            ThemeService.LoadSavedTheme();
             base.OnStartup(e);
 
             // Create system tray icon (단일 exe 배포를 위해 임베디드 리소스에서 로드)

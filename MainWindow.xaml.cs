@@ -32,6 +32,7 @@ namespace PasswordProtector
         public MainWindow()
         {
             InitializeComponent();
+            ThemeComboBox.SelectedValue = ThemeService.CurrentTheme;
             _iniFileService = new IniFileService();
             LoadAccounts();
             LoadTagFilters();
@@ -140,8 +141,8 @@ namespace PasswordProtector
         private void SyncTagFilterUiToSelection()
         {
             // "전체" 칩은 선택된 태그가 없을 때 활성(파란색)으로 표시
-            AllFilterChip.Background = new SolidColorBrush(
-                (Color)ColorConverter.ConvertFromString(_selectedTags.Count == 0 ? "#007ACC" : "#2D2D30")!);
+            AllFilterChip.Background = ThemeService.GetBrush(
+                _selectedTags.Count == 0 ? "PrimaryBrush" : "SurfaceRaisedBrush");
 
             TagFilterControl.UpdateLayout();
             var gen = TagFilterControl.ItemContainerGenerator;
@@ -156,8 +157,9 @@ namespace PasswordProtector
 
                 var selected = _selectedTags.Any(s => string.Equals(s, tag, StringComparison.OrdinalIgnoreCase));
                 // 태그 자체의 색은 바꾸지 않고, 선택 여부만 밝은 외곽선으로 표시합니다.
-                border.BorderBrush = new SolidColorBrush(
-                    (Color)ColorConverter.ConvertFromString(selected ? "#E2E8F0" : "Transparent")!);
+                border.BorderBrush = selected
+                    ? ThemeService.GetBrush("TextPrimaryBrush")
+                    : Brushes.Transparent;
                 border.BorderThickness = new Thickness(selected ? 1.5 : 1);
             }
         }
@@ -287,6 +289,14 @@ namespace PasswordProtector
                 e.Handled = true;
                 CopyPasswordToClipboard(account);
             }
+        }
+
+        private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ThemeComboBox.SelectedValue is not string themeName)
+                return;
+
+            ThemeService.Apply(themeName);
         }
 
         /// <summary>

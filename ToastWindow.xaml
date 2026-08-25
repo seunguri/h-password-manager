@@ -11,9 +11,9 @@
         Width="300"
         SizeToContent="Height"
         MaxHeight="400">
-    <Border Background="#2D2D30" 
+    <Border Background="{DynamicResource CardBrush}"
             CornerRadius="8" 
-            BorderBrush="#3F3F46" 
+            BorderBrush="{DynamicResource BorderBrush}"
             BorderThickness="1"
             Margin="10">
         <Border.Effect>
@@ -28,7 +28,7 @@
                 <TextBlock Text="⚠️" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
                 <TextBlock x:Name="HeaderText" 
                            Text="만료 알림" 
-                           Foreground="White" 
+                           Foreground="{DynamicResource TextPrimaryBrush}"
                            FontSize="13" 
                            FontWeight="SemiBold"
                            VerticalAlignment="Center"/>
@@ -37,7 +37,7 @@
             <!-- 만료된 계정 섹션 -->
             <StackPanel x:Name="ExpiredSection" Visibility="Collapsed">
                 <TextBlock Text="만료됨" 
-                           Foreground="#F48771" 
+                           Foreground="{DynamicResource StatusRed}"
                            FontSize="11" 
                            FontWeight="SemiBold"
                            Margin="0,0,0,4"/>
@@ -45,9 +45,9 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="8,2,0,2">
-                                <TextBlock Text="•" Foreground="#F48771" Margin="0,0,6,0"/>
-                                <TextBlock Text="{Binding ServiceName}" Foreground="#E0E0E0" FontSize="12"/>
-                                <TextBlock Text="{Binding ExpiryDdayDisplay}" Foreground="#F48771" FontSize="11" Margin="8,0,0,0"/>
+                                <TextBlock Text="•" Foreground="{DynamicResource StatusRed}" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding ServiceName}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding ExpiryDdayDisplay}" Foreground="{DynamicResource StatusRed}" FontSize="11" Margin="8,0,0,0"/>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -57,7 +57,7 @@
             <!-- 만료 임박 계정 섹션 -->
             <StackPanel x:Name="ExpiringSection" Visibility="Collapsed" Margin="0,8,0,0">
                 <TextBlock Text="만료 임박" 
-                           Foreground="#CE9178" 
+                           Foreground="{DynamicResource StatusOrange}"
                            FontSize="11" 
                            FontWeight="SemiBold"
                            Margin="0,0,0,4"/>
@@ -65,9 +65,9 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal" Margin="8,2,0,2">
-                                <TextBlock Text="•" Foreground="#CE9178" Margin="0,0,6,0"/>
-                                <TextBlock Text="{Binding ServiceName}" Foreground="#E0E0E0" FontSize="12"/>
-                                <TextBlock Text="{Binding ExpiryDdayDisplay}" Foreground="#CE9178" FontSize="11" Margin="8,0,0,0"/>
+                                <TextBlock Text="•" Foreground="{DynamicResource StatusOrange}" Margin="0,0,6,0"/>
+                                <TextBlock Text="{Binding ServiceName}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"/>
+                                <TextBlock Text="{Binding ExpiryDdayDisplay}" Foreground="{DynamicResource StatusOrange}" FontSize="11" Margin="8,0,0,0"/>
                             </StackPanel>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -76,7 +76,7 @@
             
             <!-- 안내 문구 -->
             <TextBlock Text="Ctrl+Shift+P로 확인" 
-                       Foreground="#6E6E6E" 
+                       Foreground="{DynamicResource TextSubtleBrush}"
                        FontSize="10"
                        Margin="0,10,0,0"
                        HorizontalAlignment="Right"/>

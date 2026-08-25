@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
@@ -11,23 +12,17 @@ namespace PasswordProtector.Converters
     /// </summary>
     public class TagColorConverter : IValueConverter
     {
-        private static readonly SolidColorBrush[] Palette =
+        private static readonly string[] PaletteKeys =
         {
-            CreateBrush("#2457A6"), // blue
-            CreateBrush("#6D3EAF"), // purple
-            CreateBrush("#0F766E"), // teal
-            CreateBrush("#A34A1C"), // orange
-            CreateBrush("#A12B52"), // rose
-            CreateBrush("#4964B8"), // indigo
-            CreateBrush("#277A61"), // green
-            CreateBrush("#8B4F1E")  // amber
+            "Tag1Brush", "Tag2Brush", "Tag3Brush", "Tag4Brush",
+            "Tag5Brush", "Tag6Brush", "Tag7Brush", "Tag8Brush"
         };
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var tag = value as string;
             if (string.IsNullOrWhiteSpace(tag))
-                return Palette[0];
+                return GetThemeBrush(0);
 
             unchecked
             {
@@ -36,18 +31,14 @@ namespace PasswordProtector.Converters
                 foreach (var character in tag.Trim())
                     hash = hash * 31 + character;
 
-                return Palette[(hash & 0x7fffffff) % Palette.Length];
+                return GetThemeBrush((hash & 0x7fffffff) % PaletteKeys.Length);
             }
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) =>
             throw new NotImplementedException();
 
-        private static SolidColorBrush CreateBrush(string color)
-        {
-            var brush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(color));
-            brush.Freeze();
-            return brush;
-        }
+        private static SolidColorBrush GetThemeBrush(int index) =>
+            Application.Current?.TryFindResource(PaletteKeys[index]) as SolidColorBrush ?? Brushes.SlateGray;
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Media;
 
 namespace PasswordProtector.Models
@@ -136,16 +137,19 @@ namespace PasswordProtector.Models
             {
                 var days = DaysUntilExpiry;
                 if (!days.HasValue)
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4EC9B0")); // Green
+                    return GetThemeBrush("StatusGreen");
                 
                 if (days < 0)
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#F48771")); // Red - 만료됨
+                    return GetThemeBrush("StatusRed");
                 else if (days <= 7)
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#E5C07B")); // Amber - 곧 만료
+                    return GetThemeBrush("StatusOrange");
                 else
-                    return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#4EC9B0")); // Green - 정상
+                    return GetThemeBrush("StatusGreen");
             }
         }
+
+        private static SolidColorBrush GetThemeBrush(string resourceKey) =>
+            Application.Current?.TryFindResource(resourceKey) as SolidColorBrush ?? Brushes.Gray;
         
         public bool HasNotesContent => !string.IsNullOrWhiteSpace(Notes);
 

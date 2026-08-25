@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="계정 관리" Height="700" Width="1400" MinWidth="720"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E"
+        Background="{DynamicResource BackgroundBrush}"
         KeyDown="Window_KeyDown"
         PreviewKeyDown="Window_PreviewKeyDown"
         Closing="Window_Closing">
@@ -34,8 +34,8 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border x:Name="ExportGlyphBox"
                                         Width="18" Height="18"
-                                        Background="#2D2D30"
-                                        BorderBrush="#3F3F46"
+                                        Background="{DynamicResource SurfaceRaisedBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
                                         CornerRadius="3"
                                         Margin="0,0,8,0"
@@ -46,13 +46,13 @@
                                                VerticalAlignment="Center"/>
                                 </Border>
                                 <TextBlock Text="복호화해서 내보내기"
-                                           Foreground="#DCDCDC"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            FontSize="12"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="ExportGlyphBox" Property="BorderBrush" Value="#007ACC"/>
+                                    <Setter TargetName="ExportGlyphBox" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -61,11 +61,11 @@
             </Style>
 
             <Style x:Key="ToolbarOutlineButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="#2D2D30"/>
-                <Setter Property="Foreground" Value="#DCDCDC"/>
+                <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextSecondaryBrush}"/>
                 <Setter Property="Padding" Value="12,8"/>
                 <Setter Property="FontSize" Value="14"/>
-                <Setter Property="BorderBrush" Value="#3F3F46"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Setter Property="Template">
@@ -82,23 +82,23 @@
                 </Setter>
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#3F3F46"/>
+                        <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>
 
             <!-- 카드 내 복사 가능한 필드(아이디·비밀번호) 공통 스타일 -->
             <Style x:Key="CopyFieldBorderStyle" TargetType="Border">
-                <Setter Property="Background" Value="#2D2D30"/>
-                <Setter Property="BorderBrush" Value="#3F3F46"/>
+                <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="6"/>
                 <Setter Property="Padding" Value="10,8"/>
                 <Setter Property="Cursor" Value="Hand"/>
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
-                        <Setter Property="Background" Value="#333336"/>
-                        <Setter Property="BorderBrush" Value="#1C97EA"/>
+                        <Setter Property="Background" Value="{DynamicResource HoverBrush}"/>
+                        <Setter Property="BorderBrush" Value="{DynamicResource PrimaryHoverBrush}"/>
                     </Trigger>
                 </Style.Triggers>
             </Style>
@@ -106,7 +106,7 @@
             <!-- 카드 필드 좌측 캡션(아이디/비밀번호/메모 라벨) -->
             <Style x:Key="CardFieldCaptionStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="10"/>
-                <Setter Property="Foreground" Value="#6D6D70"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextSubtleBrush}"/>
                 <Setter Property="FontWeight" Value="SemiBold"/>
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Setter Property="Width" Value="44"/>
@@ -115,21 +115,21 @@
             <!-- 카드 내 필드 구분선 -->
             <Style x:Key="CardDividerStyle" TargetType="Border">
                 <Setter Property="Height" Value="1"/>
-                <Setter Property="Background" Value="#33373C"/>
+                <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
                 <Setter Property="Margin" Value="0,12,0,10"/>
             </Style>
 
             <!-- 카드 필드 라벨(스택형) -->
             <Style x:Key="CardStackedCaptionStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="11"/>
-                <Setter Property="Foreground" Value="#8A8A8E"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}"/>
                 <Setter Property="Margin" Value="0,0,0,3"/>
             </Style>
 
             <!-- 카드의 핵심 동작을 명확히 드러내는 SaaS형 버튼 -->
             <Style x:Key="CardPrimaryCopyButtonStyle" TargetType="Button">
-                <Setter Property="Background" Value="#2563EB"/>
-                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Background" Value="{DynamicResource PrimaryBrush}"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="Padding" Value="14,11"/>
                 <Setter Property="Cursor" Value="Hand"/>
@@ -144,10 +144,10 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="CopyButtonBorder" Property="Background" Value="#3B82F6"/>
+                                    <Setter TargetName="CopyButtonBorder" Property="Background" Value="{DynamicResource PrimaryHoverBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="CopyButtonBorder" Property="Background" Value="#1D4ED8"/>
+                                    <Setter TargetName="CopyButtonBorder" Property="Background" Value="{DynamicResource PrimaryPressedBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -157,8 +157,8 @@
 
             <!-- 계정 카드 템플릿 -->
             <DataTemplate x:Key="AccountCardTemplate">
-                <Border BorderBrush="#3A424E" BorderThickness="1" CornerRadius="12"
-                        Margin="0,0,16,16" Width="320" Background="#252A31" MinHeight="220">
+                <Border BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="12"
+                        Margin="0,0,16,16" Width="320" Background="{DynamicResource CardBrush}" MinHeight="220">
                     <StackPanel Margin="18,18">
                         <!-- 서비스명 + 상태 + 메뉴 -->
                         <Grid Margin="0,0,0,16">
@@ -167,16 +167,16 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,6,0">
-                                <Border Width="30" Height="30" Background="#303742" CornerRadius="8" Margin="0,0,10,0">
+                                <Border Width="30" Height="30" Background="{DynamicResource SurfaceRaisedBrush}" CornerRadius="8" Margin="0,0,10,0">
                                     <TextBlock Text="◆" Foreground="{Binding StatusColor}" FontSize="11"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <TextBlock Text="{Binding ServiceName}" FontSize="15" FontWeight="SemiBold" Foreground="#F8FAFC"
+                                <TextBlock Text="{Binding ServiceName}" FontSize="15" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"
                                            TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
                             </StackPanel>
                             <Button Grid.Column="1" Content="&#xE712;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
                                     Tag="{Binding}" Click="CardMenu_Click"
-                                    Foreground="#A9B3C1" FontSize="16"
+                                    Foreground="{DynamicResource TextMutedBrush}" FontSize="16"
                                     Width="26" Height="26" Cursor="Hand" VerticalAlignment="Top"
                                     ToolTip="수정 (삭제는 수정창 하단에서)">
                                 <Button.Style>
@@ -189,8 +189,8 @@
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="MenuBorder" Property="Background" Value="#3A424E"/>
-                                                            <Setter Property="Foreground" Value="#DCDCDC"/>
+                                                            <Setter TargetName="MenuBorder" Property="Background" Value="{DynamicResource HoverBrush}"/>
+                                                            <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -202,20 +202,20 @@
                         </Grid>
 
                         <!-- 비밀번호 복사가 카드의 단일·명확한 기본 행동 -->
-                        <Border Background="#1D232B" BorderBrush="#3A424E" BorderThickness="1" CornerRadius="9" Padding="12,10" Margin="0,0,0,10">
+                        <Border Background="{DynamicResource InputBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="9" Padding="12,10" Margin="0,0,0,10">
                             <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="PASSWORD" FontSize="10" FontWeight="SemiBold" Foreground="#A9B3C1" Margin="0,0,0,4"/>
-                                    <TextBlock Text="{Binding PasswordDisplay}" Foreground="#E5E7EB" FontSize="14"
+                                    <TextBlock Text="PASSWORD" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,4"/>
+                                    <TextBlock Text="{Binding PasswordDisplay}" Foreground="{DynamicResource TextPrimaryBrush}" FontSize="14"
                                                FontFamily="Consolas, Segoe UI" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                             <Button Grid.Column="1" Content="&#xE890;" FontFamily="Segoe Fluent Icons, Segoe MDL2 Assets"
                                     Tag="{Binding}" Click="TogglePasswordVisibility_Click"
-                                    Foreground="#A9B3C1" FontSize="16" Width="30" Height="30" Padding="0" Cursor="Hand"
+                                    Foreground="{DynamicResource TextMutedBrush}" FontSize="16" Width="30" Height="30" Padding="0" Cursor="Hand"
                                     ToolTip="비밀번호 임시 표시/숨김">
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
@@ -247,9 +247,9 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="아이디" FontSize="12" Foreground="#8A8A8E"
+                                <TextBlock Grid.Column="0" Text="아이디" FontSize="12" Foreground="{DynamicResource TextMutedBrush}"
                                            Width="52" VerticalAlignment="Top" Margin="0,0,10,0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding Username}" Foreground="#B7B7BA" FontSize="12"
+                                <TextBlock Grid.Column="1" Text="{Binding Username}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                                            TextWrapping="Wrap" MaxHeight="54" TextTrimming="CharacterEllipsis"/>
                             </Grid>
                         </StackPanel>
@@ -272,9 +272,9 @@
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" Text="메모" FontSize="12" Foreground="#8A8A8E"
+                                <TextBlock Grid.Column="0" Text="메모" FontSize="12" Foreground="{DynamicResource TextMutedBrush}"
                                            Width="52" VerticalAlignment="Top" Margin="0,0,10,0"/>
-                                <TextBlock Grid.Column="1" Text="{Binding NotesCardBody}" Foreground="#B7B7BA" FontSize="12"
+                                <TextBlock Grid.Column="1" Text="{Binding NotesCardBody}" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
                                            TextWrapping="Wrap" MaxHeight="54" TextTrimming="CharacterEllipsis"
                                            ToolTip="{Binding Notes}"/>
                             </Grid>
@@ -315,20 +315,20 @@
             <!-- "새 계정 추가" 카드 템플릿 -->
             <DataTemplate x:Key="AddCardTemplate">
                 <Border BorderThickness="0" CornerRadius="12" Margin="0,0,16,16"
-                        Width="320" MinHeight="220" Background="#22272F"
+                        Width="320" MinHeight="220" Background="{DynamicResource SurfaceBrush}"
                         Cursor="Hand" MouseLeftButtonDown="AddCard_Click"
                         ToolTip="새 계정 등록 (Ctrl+N)">
                     <Grid>
-                        <Rectangle Stroke="#4A5565" StrokeThickness="1.4" StrokeDashArray="4 3"
+                        <Rectangle Stroke="{DynamicResource BorderStrongBrush}" StrokeThickness="1.4" StrokeDashArray="4 3"
                                    RadiusX="12" RadiusY="12"/>
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <Border Width="42" Height="42" Background="#1E3A8A" CornerRadius="12" HorizontalAlignment="Center">
-                                <TextBlock Text="+" FontSize="24" FontWeight="Light" Foreground="#BFDBFE"
+                            <Border Width="42" Height="42" Background="{DynamicResource PrimaryMutedBrush}" CornerRadius="12" HorizontalAlignment="Center">
+                                <TextBlock Text="+" FontSize="24" FontWeight="Light" Foreground="{DynamicResource PrimaryTextBrush}"
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Border>
-                            <TextBlock Text="새 계정 추가" FontSize="14" FontWeight="SemiBold" Foreground="#E2E8F0"
+                            <TextBlock Text="새 계정 추가" FontSize="14" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}"
                                        HorizontalAlignment="Center" Margin="0,12,0,4"/>
-                            <TextBlock Text="새로운 로그인 정보를 안전하게 등록하세요" FontSize="11" Foreground="#94A3B8"
+                            <TextBlock Text="새로운 로그인 정보를 안전하게 등록하세요" FontSize="11" Foreground="{DynamicResource TextMutedBrush}"
                                        HorizontalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
@@ -343,13 +343,13 @@
             <Style x:Key="SidebarSectionHeaderStyle" TargetType="TextBlock">
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="FontWeight" Value="Bold"/>
-                <Setter Property="Foreground" Value="#DCDCDC"/>
+                <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}"/>
             </Style>
 
             <!-- 사이드바 단축키 배지 -->
             <Style x:Key="ShortcutBadgeStyle" TargetType="Border">
-                <Setter Property="Background" Value="#33373C"/>
-                <Setter Property="BorderBrush" Value="#4A4A50"/>
+                <Setter Property="Background" Value="{DynamicResource DividerBrush}"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource BorderStrongBrush}"/>
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="CornerRadius" Value="4"/>
                 <Setter Property="Padding" Value="6,2"/>
@@ -385,20 +385,20 @@
                     <Border Width="46" Height="46" CornerRadius="11" Margin="0,0,14,0">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#2A9DF4" Offset="0"/>
-                                <GradientStop Color="#0E639C" Offset="1"/>
+                                <GradientStop Color="{DynamicResource HeaderGradientStartColor}" Offset="0"/>
+                                <GradientStop Color="{DynamicResource HeaderGradientEndColor}" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
                         <Viewbox Width="26" Height="26">
                             <Canvas Width="24" Height="24">
-                                <Path Fill="#EAF4FF"
+                                <Path Fill="{DynamicResource PrimaryTextBrush}"
                                       Data="M12,12 C14.21,12 16,10.21 16,8 C16,5.79 14.21,4 12,4 C9.79,4 8,5.79 8,8 C8,10.21 9.79,12 12,12 Z M12,14 C7.58,14 4,16.69 4,20 L4,21 L20,21 L20,20 C20,16.69 16.42,14 12,14 Z"/>
                             </Canvas>
                         </Viewbox>
                     </Border>
                     <StackPanel VerticalAlignment="Center">
-                        <TextBlock Text="계정 관리" FontSize="24" FontWeight="Bold" Foreground="#DCDCDC"/>
-                        <TextBlock Text="Account Manager" FontSize="11" Foreground="#808080"/>
+                        <TextBlock Text="계정 관리" FontSize="24" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                        <TextBlock Text="Account Manager" FontSize="11" Foreground="{DynamicResource TextSubtleBrush}"/>
                     </StackPanel>
                 </StackPanel>
                 
@@ -408,7 +408,7 @@
                             Margin="0,0,8,0"
                             ToolTip="파일에서 계정·태그 목록을 다시 불러옵니다 (F5)"/>
                     <Button Content="+ 새 계정" Click="AddButton_Click"
-                            Background="#007ACC" Foreground="White"
+                            Background="{DynamicResource PrimaryBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
                             Padding="15,8" FontSize="14" BorderThickness="0"
                             Cursor="Hand">
                         <Button.Style>
@@ -425,7 +425,7 @@
                                 </Setter>
                                 <Style.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#1C97EA"/>
+                                        <Setter Property="Background" Value="{DynamicResource PrimaryHoverBrush}"/>
                                     </Trigger>
                                 </Style.Triggers>
                             </Style>
@@ -438,8 +438,8 @@
             <TextBox x:Name="SearchTextBox" Grid.Row="1" 
                      TextChanged="SearchTextBox_TextChanged"
                      KeyDown="SearchTextBox_KeyDown"
-                     Background="#2D2D30" Foreground="#DCDCDC" 
-                     BorderBrush="#3F3F46" BorderThickness="1"
+                     Background="{DynamicResource SurfaceRaisedBrush}" Foreground="{DynamicResource TextPrimaryBrush}"
+                     BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1"
                      Padding="10,8" FontSize="14" Margin="0,0,0,15">
                 <TextBox.Style>
                     <Style TargetType="TextBox">
@@ -453,7 +453,7 @@
                                         <Grid>
                                             <TextBlock x:Name="PlaceholderText" 
                                                        Text="🔍 서비스명, 아이디, 메모로 검색..."
-                                                       Foreground="#808080" 
+                                                       Foreground="{DynamicResource TextSubtleBrush}"
                                                        Padding="{TemplateBinding Padding}"
                                                        VerticalAlignment="Center"
                                                        IsHitTestVisible="False">
@@ -486,15 +486,15 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
-                    <Border Width="15" Height="15" BorderBrush="#5A5A60" BorderThickness="1.3" CornerRadius="3" Margin="0,0,7,0"/>
-                    <TextBlock Text="필터" Foreground="#B7B7BA" FontSize="13" VerticalAlignment="Center"/>
+                    <Border Width="15" Height="15" BorderBrush="{DynamicResource BorderStrongBrush}" BorderThickness="1.3" CornerRadius="3" Margin="0,0,7,0"/>
+                    <TextBlock Text="필터" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <ScrollViewer Grid.Column="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
                     <StackPanel Orientation="Horizontal">
                         <!-- 전체(필터 해제) -->
                         <Border x:Name="AllFilterChip" CornerRadius="5" Padding="8,3" Margin="0,0,6,5"
-                                Background="#007ACC" Cursor="Hand" MouseLeftButtonDown="AllFilter_MouseLeftButtonDown">
+                                Background="{DynamicResource PrimaryBrush}" Cursor="Hand" MouseLeftButtonDown="AllFilter_MouseLeftButtonDown">
                             <TextBlock Text="전체" Foreground="White" FontSize="11" FontWeight="SemiBold"/>
                         </Border>
                         <ItemsControl x:Name="TagFilterControl">
@@ -532,18 +532,18 @@
             
             <!-- Footer -->
             <TextBlock x:Name="AccountCountText" Grid.Row="4" Text="총 0개의 계정" 
-                       Foreground="#808080" FontSize="12" Margin="0,15,0,0" HorizontalAlignment="Left"/>
+                       Foreground="{DynamicResource TextSubtleBrush}" FontSize="12" Margin="0,15,0,0" HorizontalAlignment="Left"/>
         </Grid>
         
         <!-- Right Sidebar -->
-        <Border Grid.Column="1" Background="#252526" CornerRadius="8" Padding="20">
+        <Border Grid.Column="1" Background="{DynamicResource SurfaceBrush}" CornerRadius="8" Padding="20">
             <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0,0,4,0">
             <StackPanel>
                 <!-- 사용 가이드 헤더 -->
-                <TextBlock Text="💡 사용 가이드" FontSize="16" FontWeight="Bold" Foreground="#DCDCDC" Margin="0,0,0,18"/>
+                <TextBlock Text="💡 사용 가이드" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}" Margin="0,0,0,18"/>
 
                 <!-- 빠른 사용법 -->
-                <TextBlock Text="빠른 사용법" FontSize="12" FontWeight="SemiBold" Foreground="#8A8A8E" Margin="0,0,0,14"/>
+                <TextBlock Text="빠른 사용법" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource TextMutedBrush}" Margin="0,0,0,6"/>
 
                 <!-- 새 계정 추가 -->
                 <Grid Margin="0,0,0,15">
@@ -551,7 +551,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Width="30" Height="30" CornerRadius="7" Background="#2D2D30" Margin="0,0,10,0" VerticalAlignment="Top">
+                    <Border Grid.Column="0" Width="30" Height="30" CornerRadius="7" Background="{DynamicResource SurfaceRaisedBrush}" Margin="0,0,10,0" VerticalAlignment="Top">
                         <TextBlock Text="📝" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Grid.Column="1">
@@ -560,12 +560,12 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="새 계정 추가" FontSize="12.5" FontWeight="SemiBold" Foreground="#DCDCDC" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="1. 창 열기" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             <Border Grid.Column="1" Style="{StaticResource ShortcutBadgeStyle}">
-                                <TextBlock Text="Ctrl + Shift + P" FontSize="10.5" Foreground="#C8C8CC" FontFamily="Consolas"/>
+                                <TextBlock Text="Ctrl + Shift + P" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" FontFamily="Consolas"/>
                             </Border>
                         </Grid>
-                        <TextBlock Text="새로운 계정을 등록합니다." FontSize="11" Foreground="#808080" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                        <TextBlock Text="앱을 찾지 않아도 단축키로 바로 열기" FontSize="11" Foreground="{DynamicResource TextSubtleBrush}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                     </StackPanel>
                 </Grid>
 
@@ -575,7 +575,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Width="30" Height="30" CornerRadius="7" Background="#2D2D30" Margin="0,0,10,0" VerticalAlignment="Top">
+                    <Border Grid.Column="0" Width="30" Height="30" CornerRadius="7" Background="{DynamicResource SurfaceRaisedBrush}" Margin="0,0,10,0" VerticalAlignment="Top">
                         <TextBlock Text="🔍" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Grid.Column="1">
@@ -584,22 +584,22 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="계정 검색" FontSize="12.5" FontWeight="SemiBold" Foreground="#DCDCDC" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="2.계정 검색" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             <Border Grid.Column="1" Style="{StaticResource ShortcutBadgeStyle}">
-                                <TextBlock Text="Ctrl + F" FontSize="10.5" Foreground="#C8C8CC" FontFamily="Consolas"/>
+                                <TextBlock Text="Ctrl + F" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" FontFamily="Consolas"/>
                             </Border>
                         </Grid>
-                        <TextBlock Text="서비스명 또는 아이디로 검색합니다." FontSize="11" Foreground="#808080" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                        <TextBlock Text="서비스명 또는 아이디로 검색" FontSize="11" Foreground="{DynamicResource TextSubtleBrush}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                     </StackPanel>
                 </Grid>
 
                 <!-- 비밀번호 복사 -->
-                <Grid Margin="0,0,0,20">
+                <Grid Margin="0,0,0,15">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Border Grid.Column="0" Width="30" Height="30" CornerRadius="7" Background="#2D2D30" Margin="0,0,10,0" VerticalAlignment="Top">
+                    <Border Grid.Column="0" Width="30" Height="30" CornerRadius="7" Background="{DynamicResource SurfaceRaisedBrush}" Margin="0,0,10,0" VerticalAlignment="Top">
                         <TextBlock Text="📋" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                     <StackPanel Grid.Column="1">
@@ -608,42 +608,37 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Text="비밀번호 복사" FontSize="12.5" FontWeight="SemiBold" Foreground="#DCDCDC" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="0" Text="3. 비밀번호 복사" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource TextPrimaryBrush}" VerticalAlignment="Center"/>
                             <Border Grid.Column="1" Style="{StaticResource ShortcutBadgeStyle}">
-                                <TextBlock Text="Ctrl + C" FontSize="10.5" Foreground="#C8C8CC" FontFamily="Consolas"/>
+                                <TextBlock Text="Ctrl + C" FontSize="10.5" Foreground="{DynamicResource TextSecondaryBrush}" FontFamily="Consolas"/>
                             </Border>
                         </Grid>
-                        <TextBlock Text="맨 앞(선택) 계정의 비밀번호를 복사합니다." FontSize="11" Foreground="#808080" TextWrapping="Wrap" Margin="0,3,0,0"/>
+                        <TextBlock Text="맨 앞 계정의 비밀번호 복사" FontSize="11" Foreground="{DynamicResource TextSubtleBrush}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                     </StackPanel>
                 </Grid>
 
-                <Border Height="1" Background="#33373C" Margin="0,20,0,16"/>
+                <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,20,0,16"/>
 
                 <!-- 원본 파일 위치 -->
                 <TextBlock Text="📁 원본 파일 위치" Style="{StaticResource SidebarSectionHeaderStyle}" Margin="0,4,0,10"/>
-                <TextBlock Text="비밀번호는 사용자의 로컬 PC에 안전하게 저장되며, 다음 경로에서 관리됩니다."
-                           FontSize="11" Foreground="#808080" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,10"/>
-                <Border Background="#2D2D30" CornerRadius="6" Padding="10,8"
+                <TextBlock Text="로컬 PC에 안전하게 저장되며, 다음 경로에서 관리"
+                           FontSize="11" Foreground="{DynamicResource TextSubtleBrush}" TextWrapping="Wrap" LineHeight="16" Margin="0,0,0,10"/>
+                <Border Background="{DynamicResource SurfaceRaisedBrush}" CornerRadius="6" Padding="10,8"
                         Cursor="Hand" MouseLeftButtonDown="OpenFilePath_Click">
                     <TextBlock x:Name="FilePathText"
                                FontSize="11"
-                               Foreground="#6FB6E8"
+                               Foreground="{DynamicResource PrimaryTextBrush}"
                                TextWrapping="Wrap"
                                ToolTip="클릭하면 파일 위치를 엽니다"/>
                 </Border>
-                <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                    <TextBlock Text="🔒" FontSize="11" Margin="0,0,6,0" VerticalAlignment="Top"/>
-                    <TextBlock Text="비밀번호는 암호화되어 안전하게 보관됩니다."
-                               FontSize="11" Foreground="#808080" TextWrapping="Wrap"/>
-                </StackPanel>
 
                 <!-- 설정 -->
-                <Border Height="1" Background="#33373C" Margin="0,20,0,16"/>
+                <Border Height="1" Background="{DynamicResource DividerBrush}" Margin="0,20,0,16"/>
                 <TextBlock Text="⚙️ 설정" Style="{StaticResource SidebarSectionHeaderStyle}" Margin="0,0,0,14"/>
                 
                 <CheckBox x:Name="StartupCheckBox" 
                           Content="Windows 시작 시 자동 실행" 
-                          Foreground="#DCDCDC" 
+                          Foreground="{DynamicResource TextPrimaryBrush}"
                           FontSize="12"
                           Margin="0,0,0,12"
                           Checked="StartupCheckBox_Checked"
@@ -657,14 +652,14 @@
                                         <StackPanel Orientation="Horizontal">
                                             <Border x:Name="CheckBoxBorder" 
                                                     Width="18" Height="18" 
-                                                    Background="#2D2D30" 
-                                                    BorderBrush="#3F3F46" 
+                                                    Background="{DynamicResource SurfaceRaisedBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
                                                     BorderThickness="1" 
                                                     CornerRadius="3"
                                                     Margin="0,0,8,0">
                                                 <TextBlock x:Name="CheckMark" 
                                                            Text="✓" 
-                                                           Foreground="#007ACC" 
+                                                           Foreground="{DynamicResource PrimaryBrush}"
                                                            FontSize="12" 
                                                            FontWeight="Bold"
                                                            HorizontalAlignment="Center" 
@@ -676,10 +671,10 @@
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsChecked" Value="True">
                                                 <Setter TargetName="CheckMark" Property="Visibility" Value="Visible"/>
-                                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#007ACC"/>
+                                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
                                             </Trigger>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="#007ACC"/>
+                                                <Setter TargetName="CheckBoxBorder" Property="BorderBrush" Value="{DynamicResource PrimaryBrush}"/>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -694,6 +689,32 @@
                         Margin="0,0,0,8"
                         ToolTip="비밀번호를 평문으로 풀어 INI 파일로 저장합니다."/>
 
+                <Grid Margin="0,12,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="118"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="테마"
+                               FontSize="12"
+                               Foreground="{DynamicResource TextPrimaryBrush}"
+                               VerticalAlignment="Center"/>
+                    <ComboBox x:Name="ThemeComboBox"
+                              Grid.Column="1"
+                              Style="{StaticResource ThemeComboBoxStyle}"
+                              SelectedValuePath="Tag"
+                              SelectionChanged="ThemeComboBox_SelectionChanged"
+                              Background="{DynamicResource SurfaceRaisedBrush}"
+                              Foreground="{DynamicResource TextPrimaryBrush}"
+                              BorderBrush="{DynamicResource BorderBrush}"
+                              BorderThickness="1"
+                              Padding="8,6"
+                              FontSize="12">
+                        <ComboBoxItem Content="Hanwha" Tag="Hanwha"/>
+                        <ComboBoxItem Content="Dark" Tag="Dark"/>
+                        <ComboBoxItem Content="Light" Tag="Light"/>
+                    </ComboBox>
+                </Grid>
+
                 <!-- <Border Height="1" Background="#33373C" Margin="0,20,0,16"/> -->
 
                 <!-- 상태 표시 -->
@@ -704,10 +725,10 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Ellipse Grid.Column="0" Width="9" Height="9" Fill="#4EC9B0" Margin="0,3,10,0" VerticalAlignment="Top"/>
+                    <Ellipse Grid.Column="0" Width="9" Height="9" Fill="{DynamicResource StatusGreen}" Margin="0,3,10,0" VerticalAlignment="Top"/>
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="정상" FontSize="12.5" FontWeight="SemiBold" Foreground="#4EC9B0"/>
-                        <TextBlock Text="정상적으로 사용할 수 있는 계정입니다." FontSize="11" Foreground="#808080" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        <TextBlock Text="정상" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource StatusGreen}"/>
+                        <TextBlock Text="정상적으로 사용할 수 있는 계정입니다." FontSize="11" Foreground="{DynamicResource TextSubtleBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Grid>
 
@@ -716,10 +737,10 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Ellipse Grid.Column="0" Width="9" Height="9" Fill="#E5C07B" Margin="0,3,10,0" VerticalAlignment="Top"/>
+                    <Ellipse Grid.Column="0" Width="9" Height="9" Fill="{DynamicResource StatusOrange}" Margin="0,3,10,0" VerticalAlignment="Top"/>
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="7일 이내 만료" FontSize="12.5" FontWeight="SemiBold" Foreground="#E5C07B"/>
-                        <TextBlock Text="비밀번호가 7일 이내 만료됩니다." FontSize="11" Foreground="#808080" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        <TextBlock Text="7일 이내 만료" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource StatusOrange}"/>
+                        <TextBlock Text="비밀번호가 7일 이내 만료됩니다." FontSize="11" Foreground="{DynamicResource TextSubtleBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Grid>
 
@@ -728,10 +749,10 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <Ellipse Grid.Column="0" Width="9" Height="9" Fill="#F48771" Margin="0,3,10,0" VerticalAlignment="Top"/>
+                    <Ellipse Grid.Column="0" Width="9" Height="9" Fill="{DynamicResource StatusRed}" Margin="0,3,10,0" VerticalAlignment="Top"/>
                     <StackPanel Grid.Column="1">
-                        <TextBlock Text="만료 / 기한 초과" FontSize="12.5" FontWeight="SemiBold" Foreground="#F48771"/>
-                        <TextBlock Text="비밀번호가 만료되었거나 기한이 초과되었습니다." FontSize="11" Foreground="#808080" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                        <TextBlock Text="만료 / 기한 초과" FontSize="12.5" FontWeight="SemiBold" Foreground="{DynamicResource StatusRed}"/>
+                        <TextBlock Text="비밀번호가 만료되었거나 기한이 초과되었습니다." FontSize="11" Foreground="{DynamicResource TextSubtleBrush}" TextWrapping="Wrap" Margin="0,2,0,0"/>
                     </StackPanel>
                 </Grid> -->
 
@@ -741,7 +762,7 @@
 
         <!-- 복사 성공 알림 오버레이 -->
         <Border x:Name="CopyToastBorder" Grid.ColumnSpan="2"
-                Background="#007ACC" CornerRadius="6" Padding="16,10"
+                Background="{DynamicResource PrimaryMutedBrush}" CornerRadius="6" Padding="16,10"
                 HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 Margin="0,0,0,24" IsHitTestVisible="False"
                 Visibility="Collapsed" Opacity="0">
